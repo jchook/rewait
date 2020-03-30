@@ -39,14 +39,14 @@ async function retry(fns, userConfig) {
   const results = fns.map(() => {})
   const status = fns.map(() => NOT_READY)
 
-  // Wait until all systems go (or error with timeout)
+  // Retry until ready (or timeout)
   let notReady = true
   do {
-    // Wait until interval or all systems go (or error with timeout)
+    // Wait until ready or interval (or timeout)
     await Promise.race([
       timeoutPromise,
 
-      // Wait until interval or all systems go
+      // Wait until ready or interval
       new Promise((resolve, reject) => {
         if (config.interval) {
           setTimeout(resolve, config.interval)
@@ -79,7 +79,7 @@ async function retry(fns, userConfig) {
             return promise
           })
         )
-          // Only resolve if everything is A-OK
+          // Only resolve if everything is ready
           .then(() => {
             notReady = status.some(x => x !== READY)
             if (!notReady) {
@@ -87,8 +87,8 @@ async function retry(fns, userConfig) {
             }
           })
 
-          // Just in case...
-          // I don't expec this code will ever execute
+          // Forward any structural errors...
+          // I don't expect this code will ever execute
           .catch(reject)
       }),
     ])
