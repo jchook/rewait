@@ -16,6 +16,7 @@ const globalConfig = {
 
 module.exports = {
   retry,
+  sequence,
   file: checkFile,
   http: checkHttp,
   socket: checkSocket,
@@ -61,7 +62,7 @@ async function retry(fns, userConfig) {
         if (config.interval) {
           setTimeout(resolve, config.interval)
         }
-        
+
         // Trigger any NOT_READY checks
         Promise.allSettled(
           fns.map((fn, idx) => {
@@ -275,5 +276,15 @@ function checkFile(path, options) {
       new Error(`File ${path} failed checkOk()`)
     }
     return stats
+  }
+}
+
+function sequence(...fns) {
+  return async function () {
+    const results = []
+    for (let idx = 0; idx < fns.length; idx++) {
+      results.push(await fns[idx]())
+    }
+    return results
   }
 }
