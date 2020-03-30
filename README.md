@@ -7,7 +7,6 @@ Node JS library to await promises, then retry or timeout.
 - http/https
 - custom functions
 
-
 ## Example
 
 ```javascript
@@ -44,7 +43,9 @@ Check for a 2XX or 3XX response from an HTTP or HTTPS endpoint.
 
 - `url`: string
 - `options`: Object | undefined
-  - `checkOk`: Function&lt;[http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmssage)&gt;: Boolean
+  - `checkOk`:
+    Function&lt;[http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmssage)&gt;:
+    Boolean
   - `auth`: Object | string
     - `user`: string
     - `pass`: string
@@ -64,10 +65,11 @@ If you pass a string for `str`, it can take either the form `host:port` or
 
 - `str`: string | options
 - `options`: Object | null
-  - checkOk: Function&lt;[net.Socket](https://nodejs.org/api/net.html#net_class_net_socket)&gt;: Boolean 
+  - checkOk:
+    Function&lt;[net.Socket](https://nodejs.org/api/net.html#net_class_net_socket)&gt;:
+    Boolean
   - ...options from
     [socket.connect()](https://nodejs.IncomingMessageorg/api/net.html#net_socket_connect_options_connectlistener)
-
 
 ## `file(path, [options])`
 
@@ -75,8 +77,8 @@ Check a file.
 
 - `path`: string
 - `options`: Object | null
-  - checkOk: Function&lt;[fs.Stats](https://nodejs.org/api/fs.html#fs_class_fs_stats)&gt;: Boolean 
+  - checkOk:
+    Function&lt;[fs.Stats](https://nodejs.org/api/fs.html#fs_class_fs_stats)&gt;:
+    Boolean
   - ...options from
     [socket.connect()](https://nodejs.IncomingMessageorg/api/net.html#net_socket_connect_options_connectlistener)
-
-
