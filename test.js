@@ -1,8 +1,8 @@
-const { all, http, socket } = require('./index.js')
+const { retry, http, socket } = require('./index.js')
 
 ;(async function () {
   try {
-    await all(
+    await retry(
       [
         http('http://localhost:8091', {
           auth: { user: 'admin', pass: 'changeme' },
