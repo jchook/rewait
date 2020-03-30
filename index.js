@@ -23,58 +23,66 @@ module.exports = {
 
 /**
  * Wait for stuff
- * @param {Array} waits async callbacks
+ * @param {Array} fns async callbacks
  * @param {Object|null} userConfig
  */
-async function retry(waits, userConfig) {
+async function retry(fns, userConfig) {
   const config = Object.assign({}, globalConfig, userConfig)
   const debug = createDebug(config.verbose)
 
   // Single wait or multiple?
-  const singular = typeof waits === 'function'
+  const singular = typeof fns === 'function'
   if (singular) {
-    waits = [waits]
+    fns = [fns]
   }
 
-  // Global timeout
+  // Absolute timeout
+  // Everything races against this
   const timeout = new Promise((resolve, reject) => {
     if (config.timeout) {
       setTimeout(() => reject('Timeout'), config.timeout)
     }
   })
 
-  // Wait until timeout or all systems go
-  const promises = waits.map(() => {})
-  const results = waits.map(() => {})
-  const status = waits.map(() => NOT_READY)
+  // Keep track of active promises, results, and status
+  const promises = fns.map(() => {})
+  const results = fns.map(() => {})
+  const status = fns.map(() => NOT_READY)
+
+  // Wait until all systems go (or error with timeout)
   let notReady = true
   do {
+    // Wait until interval or all systems go (or error with timeout)
     await Promise.race([
       timeout,
+
+      // Wait until interval or all systems go
       new Promise((resolve, reject) => {
         if (config.interval) {
           setTimeout(resolve, config.interval)
         }
+        
+        // Trigger any NOT_READY checks
         Promise.allSettled(
-          waits.map((fn, idx) => {
-            switch (status[idx]) {
-              case READY:
-                return
-              case WORKING:
-                return promises[idx]
-              case NOT_READY:
-                break
+          fns.map((fn, idx) => {
+            // Don't retry READY or WORKING fns
+            if (status[idx] !== NOT_READY) {
+              return promises[idx]
             }
+
+            // [Re]try!
             const promise = fn()
+
+            // Handle promises
             if (promise.then && promise.catch) {
               status[idx] = WORKING
               return (promises[idx] = promise.then(result => {
-                promises[idx] = null
+                promises[idx] = undefined
                 results[idx] = result
                 status[idx] = READY
               })).catch(err => {
                 debug(err)
-                promises[idx] = null
+                promises[idx] = undefined
                 status[idx] = NOT_READY
               })
             }
@@ -105,7 +113,7 @@ async function retry(waits, userConfig) {
 
 function createDebug(verbose) {
   if (verbose) {
-    return (...args) => console.log(...args)
+    return (...args) => console.warn(...args)
   } else {
     return () => {}
   }

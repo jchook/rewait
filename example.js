@@ -35,7 +35,7 @@ const { retry, http, socket } = require('./index.js')
         socket('localhost:15672'),
       ],
       {
-        timeout: 1000,
+        timeout: 15000,
         verbose: true,
         interval: 500,
       }
