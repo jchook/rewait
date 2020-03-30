@@ -1,4 +1,4 @@
-const { retry, http, sequence, socket } = require('./index.js')
+const { retry, http, socket } = require('./index.js')
 
 ;(async function () {
   try {
@@ -16,23 +16,19 @@ const { retry, http, sequence, socket } = require('./index.js')
     // Retry on failures
     await retry(
       [
-        // Do these in sequence
-        sequence(
+        // Check Couchbase pool
+        http('/pools/nodes', couchbase),
 
-          // Check Couchbase pool
-          http('/pools/nodes', couchbase),
+        // Check Couchbase credentials
+        http('/whoami', couchbase),
 
-          // Check Couchbase credentials
-          http('/whoami', couchbase),
-
-          // Check Couchbase query service
-          http('/query/service', {
-            ...couchbase,
-            port: 8093,
-            method: 'POST',
-            data: 'select * from system:indexes;',
-          })
-        ),
+        // Check Couchbase query service
+        http('/query/service', {
+          ...couchbase,
+          port: 8093,
+          method: 'POST',
+          data: 'select * from system:indexes;',
+        }),
 
         // Check RabbitMQ
         socket('localhost:15672'),
