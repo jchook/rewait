@@ -1,4 +1,4 @@
-const { retry, http, socket } = require('./index.js')
+const { retry, http, socket } = require('../src')
 
 ;(async function () {
   try {

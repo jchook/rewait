@@ -1,4 +1,4 @@
-const { retry, http, socket } = require('./index.js')
+const { retry, http } = require('../src')
 
 ;(async function () {
   try {
@@ -7,10 +7,9 @@ const { retry, http, socket } = require('./index.js')
         http('http://localhost:8091', {
           auth: { user: 'admin', pass: 'changeme' },
         }),
-        socket('localhost:8091'),
       ],
       {
-        timeout: 1000,
+        timeout: 5000,
         verbose: true,
         interval: 500,
       }
