@@ -75,10 +75,43 @@ If you pass a string for `str`, it can take either the form `host:port` or
 
 Check a file.
 
+You can easily verify the file using the `checkOk` option. 
+For example, to check if the file is writable...
+
+```javascript
+file('/path/to/file.txt', {
+  checkOk: stats => stats.isFile() && (stats.mode & 0700)
+})
+```
+
 - `path`: string
 - `options`: Object | null
   - checkOk:
     Function&lt;[fs.Stats](https://nodejs.org/api/fs.html#fs_class_fs_stats)&gt;:
     Boolean
   - ...options from
-    [socket.connect()](https://nodejs.IncomingMessageorg/api/net.html#net_socket_connect_options_connectlistener)
+    [fs.stat()](https://nodejs.org/api/fs.html#fs_fs_stat_path_options_callback)
+
+
+## Custom function
+
+Simply throw an Error when "not ready".
+
+Example:
+
+```javascript
+function customCheck(options = {}) {
+  return async () => {
+    if (options.neverReady) {
+      throw new Error('Never ready!')
+    }
+    if (options.waitUntil) {
+      if (+new Date() < options.waitUntil) {
+        throw new Error('Not ready!')
+      }
+    }
+    // Ready, simply by not throwing
+  }
+}
+```
+ 
