@@ -15,11 +15,12 @@ const { retry, http, socket } = require('rewait')
 retry(
   [
     http('http://localhost:3000'),
-    http('https://localhost:3001'),
+    http('https://localhost:3001/path/to/thing.txt'),
     socket('/var/run/app.sock'),
   ],
   {
-    timeout: 5000,
+    interval: 500, // check (at most) every 1/2 second
+    timeout: 60000, // timeout after 60 seconds (on the dot)
   }
 ).then(() => {
   console.log('Ready!')
@@ -34,7 +35,8 @@ Retry the given functions until they all resolve, or timeout.
 
 - `fns`: Array&lt;Function&gt; | Function
 - `options`: Object | undefined
-  - `timeout`: Number (default: 5000)
+  - `interval`: Number (default: 250)
+  - `timeout`: Number (default: Infinity)
   - `verbose`: Boolean (default: false)
 
 ## `http(url, [options])`
@@ -65,7 +67,7 @@ If you pass a string for `str`, it can take either the form `host:port` or
 
 - `str`: string | options
 - `options`: Object | null
-  - checkOk:
+  - `checkOk`:
     Function&lt;[net.Socket](https://nodejs.org/api/net.html#net_class_net_socket)&gt;:
     Boolean
   - ...options from
@@ -75,23 +77,22 @@ If you pass a string for `str`, it can take either the form `host:port` or
 
 Check a file.
 
-You can easily verify the file using the `checkOk` option. 
-For example, to check if the file is writable...
+You can easily verify the file using the `checkOk` option. For example, to check
+if the file is writable...
 
 ```javascript
 file('/path/to/file.txt', {
-  checkOk: stats => stats.isFile() && (stats.mode & 0700)
+  checkOk: stats => stats.isFile() && stats.mode & 0700,
 })
 ```
 
 - `path`: string
 - `options`: Object | null
-  - checkOk:
+  - `checkOk`:
     Function&lt;[fs.Stats](https://nodejs.org/api/fs.html#fs_class_fs_stats)&gt;:
     Boolean
   - ...options from
     [fs.stat()](https://nodejs.org/api/fs.html#fs_fs_stat_path_options_callback)
-
 
 ## Custom function
 
@@ -114,4 +115,3 @@ function customCheck(options = {}) {
   }
 }
 ```
- 

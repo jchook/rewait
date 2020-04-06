@@ -4,7 +4,7 @@ const WORKING = Symbol('WORKING')
 
 const globalConfig = {
   interval: 250,
-  timeout: 0,
+  timeout: Infinity,
   verbose: false,
 }
 
@@ -29,7 +29,7 @@ async function retry(fns, userConfig) {
   // Everything races against this
   let timeout
   const timeoutPromise = new Promise((resolve, reject) => {
-    if (config.timeout) {
+    if (config.timeout && config.timeout !== Infinity) {
       timeout = setTimeout(() => reject('Timeout'), config.timeout)
     }
   })
