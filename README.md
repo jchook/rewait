@@ -52,11 +52,11 @@ Check for a 2XX or 3XX response from an HTTP or HTTPS endpoint.
     - `user`: string
     - `pass`: string
   - ...options from
-    [http.request()](https://nodejs.orIncomingMessageg/api/http.html#http_http_request_options_callback)
+    [http.request()](https://nodejs.org/api/http.html#http_http_request_options_callback)
   - ...options from
-    [https.request()](https://nodejs.oIncomingMessagerg/api/https.html#https_https_request_options_callback)
+    [https.request()](https://nodejs.org/api/https.html#https_https_request_options_callback)
   - ...options from
-    [socket.connect()](https://nodejs.IncomingMessageorg/api/net.html#net_socket_connect_options_connectlistener)
+    [socket.connect()](https://nodejs.org/api/net.html#net_socket_connect_options_connectlistener)
 
 ## `socket(str, [options])`
 
@@ -71,7 +71,7 @@ If you pass a string for `str`, it can take either the form `host:port` or
     Function&lt;[net.Socket](https://nodejs.org/api/net.html#net_class_net_socket)&gt;:
     Boolean
   - ...options from
-    [socket.connect()](https://nodejs.IncomingMessageorg/api/net.html#net_socket_connect_options_connectlistener)
+    [socket.connect()](https://nodejs.org/api/net.html#net_socket_connect_options_connectlistener)
 
 ## `file(path, [options])`
 
