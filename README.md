@@ -65,8 +65,11 @@ Check a TCP or UNIX socket connection.
 If you pass a string for `str`, it can take either the form `host:port` or
 `/path/to/socket`
 
+The `bail` parameter abandons the request as soon as it receives data.
+
 - `str`: string | options
 - `options`: Object | null
+  - `bail`: Boolean
   - `checkOk`:
     Function&lt;[net.Socket](https://nodejs.org/api/net.html#net_class_net_socket)&gt;:
     Boolean
