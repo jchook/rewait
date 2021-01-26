@@ -43,14 +43,21 @@ Retry the given functions until they all resolve, or timeout.
 
 Check for a 2XX or 3XX response from an HTTP or HTTPS endpoint.
 
+The `bail` parameter abandons the request as soon as it receives data.
+
 - `url`: string
 - `options`: Object | undefined
-  - `checkOk`:
-    Function&lt;[http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmssage)&gt;:
-    Boolean
   - `auth`: Object | string
     - `user`: string
     - `pass`: string
+  - `bail`: Boolean
+  - `checkOk`:
+    Function&lt;[http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmssage)&gt;:
+    Boolean
+  - `onRequest`:
+    Function&lt;[http.ClientRequest](https://nodejs.org/api/http.html#http_class_http_clientrequest)&gt;
+  - `onResponse`:
+    Function&lt;[http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse)&gt;
   - ...options from
     [http.request()](https://nodejs.org/api/http.html#http_http_request_options_callback)
   - ...options from
@@ -65,11 +72,8 @@ Check a TCP or UNIX socket connection.
 If you pass a string for `str`, it can take either the form `host:port` or
 `/path/to/socket`
 
-The `bail` parameter abandons the request as soon as it receives data.
-
 - `str`: string | options
 - `options`: Object | null
-  - `bail`: Boolean
   - `checkOk`:
     Function&lt;[net.Socket](https://nodejs.org/api/net.html#net_class_net_socket)&gt;:
     Boolean

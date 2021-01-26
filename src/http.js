@@ -94,6 +94,8 @@ function httpRequest(options) {
       res.on('end', () => {
         clearTimeout(responseTimeout)
         resolve(res)
+        res.destroy()
+        req.destroy()
       })
     })
 
