@@ -4,4 +4,5 @@ module.exports = {
   retry: require('./retry'),
   sequence: require('./sequence'),
   socket: require('./socket'),
+  url: require('./url'),
 }

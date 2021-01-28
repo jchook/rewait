@@ -22,9 +22,8 @@ test('connects via http', async t => {
 })
 
 test('bail on infinite data', t => {
-  t.plan(3)
+  t.plan(6)
   let interval
-  let response
 
   // Build server that streams data forever
   const server = http.createServer((req, res) => {
@@ -32,49 +31,41 @@ test('bail on infinite data', t => {
     const write = () => res.write('42\n')
     write()
     interval = setInterval(write, 1000)
-    response = res
   })
   server.listen()
 
   // Make request
   const url = `http://localhost:${server.address().port}`
-  return checkHttp(url, {
+  checkHttp(url, {
     bail: true, // without this it will hang
     onRequest: req => {
       t.ok(req, 'client made a request')
+      req.on('close', () => {
+        t.ok(true, 'request is closed')
+      })
     },
-  })()
-    .then(
-      () =>
-        new Promise(resolve => {
-          server.close(err => {
-            t.notOk(err)
-            resolve()
-          })
-        })
-    )
-    .finally(() => {
-      // Tear-down infinite data stream server
-      clearInterval(interval)
-      response.end()
-      server.close()
+  })().then(res => {
+    t.ok(res instanceof http.IncomingMessage, 'return value is response')
+    clearInterval(interval)
+    server.close(err => {
+      t.notOk(err, 'does not error on closing server')
+      t.notOk(server.listening, 'server no longer listening')
     })
+  })
 })
 
 test('timeout when server fails to send data', t => {
-  t.plan(3)
-  let response
+  t.plan(5)
 
   // Build server that never sends data
-  const server = http.createServer((req, res) => {
+  const server = http.createServer((req) => {
     t.ok(req, 'server received request')
-    response = res
   })
   server.listen()
 
   // Make request
   const url = `http://localhost:${server.address().port}`
-  return checkHttp(url, {
+  checkHttp(url, {
     timeout: 100,
     responseTimeout: 100,
     onRequest: req => {
@@ -82,12 +73,12 @@ test('timeout when server fails to send data', t => {
     },
   })()
     .then(() => t.fail('Did not timeout'))
-    .catch(err => t.ok(err, 'timeout occurred'))
-    .finally(() => {
-      if (response) {
-        response.end()
-        server.close()
-      }
+    .catch(err => {
+      t.ok(err, 'timeout occurred')
+      server.close(err => {
+        t.notOk(err, 'does not error on closing server')
+        t.notOk(server.listening, 'server no longer listening')
+      })
     })
 })
 

@@ -53,7 +53,7 @@ function httpRequest(options) {
     if (options.timeout !== false) {
       responseTimeout = setTimeout(() => {
         req.destroy()
-        reject(new Error('HTTP timeout'))
+        reject(new Error('HTTP response timeout'))
       }, options.timeout || DEFAULT_RESPONSE_TIMEOUT)
     }
 
