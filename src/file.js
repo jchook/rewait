@@ -3,10 +3,10 @@ const fs = require('fs')
 module.exports = checkFile
 
 /**
- * Promisify fs.stat()
+ * Promisify fs.stat() (support for node pre v10)
  */
 function fsStat(path, options) {
-  new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     fs.stat(path, options, (err, stats) => {
       if (err) {
         reject(err)
@@ -27,7 +27,7 @@ function checkFile(path, options) {
     const stats = await fsStat(path, options)
     const ok = await options.checkOk(stats, options)
     if (!ok) {
-      new Error(`File ${path} failed checkOk()`)
+      throw new Error(`File ${path} failed checkOk()`)
     }
     return stats
   }
