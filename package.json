@@ -1,6 +1,6 @@
 {
   "name": "rewait",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Await, retry, or timeout -- http, https, tcp, sockets, files, and custom functions.",
   "main": "src/index.js",
   "author": "Wes Roberts",
