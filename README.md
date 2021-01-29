@@ -33,6 +33,8 @@ retry(
 
 Retry the given functions until they all resolve, or timeout.
 
+It will not retry a given function until the returned promise resolves.
+
 - `fns`: Array&lt;Function&gt; | Function
 - `options`: Object | undefined
   - `interval`: Number (default: 250)
