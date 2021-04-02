@@ -11,13 +11,30 @@ const globalConfig = {
 module.exports = retry
 
 /**
- * Wait for stuff
+ * Wait for resources to become available, retrying at set invervals.
+ *
+ * Note that retry() will not retry a given async check function until it
+ * resolves. If it resolves faster than the interval, retry() will wait for
+ * the balance of the interval time before retrying. The interval defaults to
+ * 250ms.
+ *
+ * The timeout value throws an `Error` immediately after the given duration,
+ * even if it has async processes still in progress. Defaults to Infinity.
+ *
+ * The returned `Promise` only resolves once all supplied check functions pass.
+ * It returns the result of all the check functions. If you passed in a single
+ * function (not an array), it will return the result of that single function.
+ *
  * @param {Array} fns async callbacks
- * @param {Object|null} userConfig
+ * @param {Object|null} config
+ * @param {number} config.interval minimum milliseconds between retries
+ * @param {number} config.timeout maximum duration of retry (in milliseconds)
+ * @param {boolean} config.verbose
+ * @return {Array|any}
  */
-async function retry(fns, userConfig) {
-  const config = Object.assign({}, globalConfig, userConfig)
-  const debug = createDebug(config.verbose)
+async function retry(fns, config) {
+  const cfg = Object.assign({}, globalConfig, config)
+  const debug = createDebug(cfg.verbose)
 
   // Single wait or multiple?
   const singular = typeof fns === 'function'
@@ -29,8 +46,16 @@ async function retry(fns, userConfig) {
   // Everything races against this
   let timeout
   const timeoutPromise = new Promise((resolve, reject) => {
-    if (config.timeout && config.timeout !== Infinity) {
-      timeout = setTimeout(() => reject('Timeout'), config.timeout)
+    if (cfg.timeout && cfg.timeout !== Infinity) {
+      timeout = setTimeout(
+        () =>
+          reject(
+            new Error(
+              'Timeout while waiting for external resources to become available'
+            )
+          ),
+        cfg.timeout
+      )
     }
   })
 
@@ -48,8 +73,8 @@ async function retry(fns, userConfig) {
 
       // Wait until ready or interval
       new Promise((resolve, reject) => {
-        if (config.interval) {
-          setTimeout(resolve, config.interval)
+        if (cfg.interval) {
+          setTimeout(resolve, cfg.interval)
         }
 
         // Trigger any NOT_READY checks

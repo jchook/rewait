@@ -8,6 +8,9 @@ module.exports = checkHttp
 
 /**
  * Convenience conversion of a few option formats
+ *
+ * @param {Partial<http.RequestOptions>} userOpt
+ * @return {Partial<http.RequestOptions>}
  */
 function parseHttpOptions(userOpt) {
   const opt = {}
@@ -41,6 +44,10 @@ function filterNull(opt) {
 
 /**
  * Promisify http.request()
+ *
+ * @param {http.RequestOptions} options
+ * @param {number} options.timeout
+ * @return {Promise<http.IncomingMessage,Error>}
  */
 function httpRequest(options) {
   return new Promise((resolve, reject) => {
@@ -60,6 +67,9 @@ function httpRequest(options) {
     // Fail fast on errors
     req.on('error', err => {
       clearTimeout(responseTimeout)
+      if (typeof options.onError === 'function') {
+        options.onError(err)
+      }
       reject(err)
       req.destroy()
     })
@@ -109,10 +119,26 @@ function httpRequest(options) {
   })
 }
 
+/**
+ * @typedef {(res: http.IncomingMessage) => boolean} HttpCheckOkCallback
+ */
+
+/**
+ * @type HttpCheckOkCallback
+ */
 function checkOk(res) {
   return res && res.statusCode >= 200 && res.statusCode < 400
 }
 
+/**
+ * Check to see if an HTTP resource is available
+ *
+ * @param {string} userUrl the URL to fetch
+ * @param {object & http.RequestOptions} userOptions
+ * @param {number} userOptions.timeout
+ * @param {HttpCheckOkCallback} userOptions.checkOk
+ * @return {() => Promise<http.IncomingMessage>}
+ */
 function checkHttp(userUrl, userOptions) {
   const urlOptions =
     typeof userUrl === 'string' ? filterNull(url.parse(userUrl)) : userUrl
@@ -126,7 +152,7 @@ function checkHttp(userUrl, userOptions) {
     ...options,
     auth: null,
   }))
-  return async () => {
+  const check = async () => {
     const res = await httpRequest(options)
     const ok = await options.checkOk(res, options)
     if (!ok) {
@@ -136,4 +162,5 @@ function checkHttp(userUrl, userOptions) {
     }
     return res
   }
+  return check
 }

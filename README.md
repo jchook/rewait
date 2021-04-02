@@ -56,6 +56,7 @@ The `bail` parameter abandons the request as soon as it receives data.
   - `checkOk`:
     Function&lt;[http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmssage)&gt;:
     Boolean
+  - `onError`: Function&lt;Error&gt;
   - `onRequest`:
     Function&lt;[http.ClientRequest](https://nodejs.org/api/http.html#http_class_http_clientrequest)&gt;
   - `onResponse`:

@@ -83,12 +83,18 @@ test('timeout when server fails to send data', t => {
 })
 
 test('connection failure', t => {
-  t.plan(1)
+  t.plan(2)
+
+  const onError = (err) => {
+    t.ok(err instanceof Error)
+  }
 
   // Make request
   // Do not listen on this port
   const url = "http://localhost:21331"
-  return checkHttp(url)()
+  return checkHttp(url, {
+    onError
+  })()
     .then(() => t.fail('connection did fail as expected'))
     .catch(err => t.ok(err, 'connection failure occurred as expected'))
 })

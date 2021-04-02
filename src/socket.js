@@ -5,6 +5,9 @@ module.exports = checkSocket
 
 /**
  * Promisify net.connect()
+ *
+ * @param {net.SocketConnectOpts} options
+ * @return {Promise<net.Socket>}
  */
 function netConnect(options) {
   return new Promise((resolve, reject) => {
@@ -34,6 +37,24 @@ function parseUrl(destUrl) {
   return undefined
 }
 
+/**
+ * @typedef {(net.Socket) => boolean} SocketCheckOkCallback
+ * @typedef {{ port: number, host: string }} UrlDescriptor
+ */
+
+/**
+ * Check that a socket is listening.
+ *
+ * You can specify a full url (e.g. tcp://localhost:3000), a port number,
+ * or an object of the form { host, port }. For IPC (Unix) sockets you can
+ * pass a path to the socket.
+ *
+ * @param {string|number|UrlDescriptor} destUrl URL of the socket to connect to
+ * @param {object & net.SocketConnectOpts} options
+ * @param {boolean} options.close whether to close the socket after connecting
+ * @param {SocketCheckOkCallback} options.checkOk custom socket check
+ * @return {() => Promise<net.Socket>}
+ */
 function checkSocket(destUrl, options) {
   const urlOptions = parseUrl(destUrl) || {}
   const { checkOk, close, ...opt } = {
