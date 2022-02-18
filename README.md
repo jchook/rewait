@@ -1,13 +1,28 @@
-# Rewait
+Rewait
+======
 
-Node JS library to await promises, then retry or timeout.
+A Node JS library to await promises, then retry or timeout.
 
 - files
 - sockets
 - http/https
 - custom functions
 
-## Example
+
+For example, you may wish to wait for a database or message queue to become
+available before starting your HTTP server. Rewait does that.
+
+
+Why use rewait?
+---------------
+
+- No dependencies
+- Very tiny (~600 lines of code)
+- Extensible
+
+
+Example
+-------
 
 ```javascript
 const { retry, http, socket } = require('rewait')
@@ -27,7 +42,9 @@ retry(
 })
 ```
 
-# Usage
+
+Usage
+=====
 
 ## `retry(fns, [options])`
 
@@ -40,6 +57,7 @@ It will not retry a given function until the returned promise resolves.
   - `interval`: Number (default: 250)
   - `timeout`: Number (default: Infinity)
   - `verbose`: Boolean (default: false)
+
 
 ## `http(url, [options])`
 
@@ -68,6 +86,7 @@ The `bail` parameter abandons the request as soon as it receives data.
   - ...options from
     [socket.connect()](https://nodejs.org/api/net.html#net_socket_connect_options_connectlistener)
 
+
 ## `socket(str, [options])`
 
 Check a TCP or UNIX socket connection.
@@ -82,6 +101,7 @@ If you pass a string for `str`, it can take either the form `host:port` or
     Boolean
   - ...options from
     [socket.connect()](https://nodejs.org/api/net.html#net_socket_connect_options_connectlistener)
+
 
 ## `file(path, [options])`
 
@@ -104,7 +124,9 @@ file('/path/to/file.txt', {
   - ...options from
     [fs.stat()](https://nodejs.org/api/fs.html#fs_fs_stat_path_options_callback)
 
-## Custom function
+
+Custom function
+----------------
 
 Simply throw an Error when "not ready".
 
