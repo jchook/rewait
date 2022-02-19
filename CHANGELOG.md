@@ -27,7 +27,7 @@
   spec naming conventions.
 
 - Optional `checkOk` functions now must throw an Error to indicate a not-ok
-  state. Previously these could return a falsey value.
+  state. Previously these could return a false.
 
 ## Migration Guide
 

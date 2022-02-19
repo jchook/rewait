@@ -5,7 +5,7 @@ Rewait
 ![License MIT](https://img.shields.io/badge/license-MIT-brightgreen)
 ![Test Coverage 100%](https://img.shields.io/badge/test%20coverage-100%25-brightgreen)
 
-A NodeJS library to await promises, then retry or timeout.
+A NodeJS library to wait for external resources to become available:
 
 - files
 - sockets

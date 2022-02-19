@@ -2,6 +2,17 @@
   "name": "rewait",
   "version": "1.1.2",
   "description": "Await, retry, or timeout -- http, https, tcp, sockets, files, and custom functions.",
+  "keywords": [
+    "wait",
+    "wait for",
+    "wait on",
+    "wait-on",
+    "external",
+    "resource",
+    "database",
+    "retry",
+    "online"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Wes Roberts",
@@ -16,6 +27,7 @@
     "typescript": "^4.5.5"
   },
   "scripts": {
+    "build": "tsc",
     "coverage": "c8 -n src npm run test",
     "test": "ts-node spec/index.spec.ts"
   }
