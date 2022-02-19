@@ -1,9 +1,14 @@
-const test = require('tape')
-const retry = require('./retry')
+import test from 'tape'
+import retry from './retry'
+
+interface FnCall {
+  args: any[]
+  at: Date
+}
 
 function createChecker(numCalls = 3, lag = 10) {
-  const calls = []
-  const check = (...args) => {
+  const calls: FnCall[] = []
+  const check = (...args: any[]) => {
     return new Promise((resolve, reject) => {
       calls.push({ args, at: new Date() })
       if (calls.length >= numCalls) {
@@ -58,10 +63,7 @@ test('staggered retry', async t => {
   const slow = createChecker(5, 100)
   const fast = createChecker(5, 10)
   try {
-    await retry([
-      slow.check,
-      fast.check,
-    ], {
+    await retry([slow.check, fast.check], {
       interval: 25,
       timeout: 200,
     })
@@ -69,6 +71,9 @@ test('staggered retry', async t => {
     t.ok(err, 'timeout')
     t.equal(slow.calls.length, 2, 'only called slow checker 2x in 200ms')
     t.equal(fast.calls.length, 5, 'called fast checker 5x in 200ms')
-    t.ok(slow.calls[1].at - slow.calls[0].at >= 100, 'retry waited patiently to retry slow check')
+    t.ok(
+      slow.calls[1].at.getTime() - slow.calls[0].at.getTime() >= 100,
+      'retry waited patiently to retry slow check'
+    )
   }
 })

@@ -1,6 +1,6 @@
-const dgram = require('dgram')
-const test = require('tape')
-const udp = require('./udp')
+import dgram from 'dgram'
+import test from 'tape'
+import udp from './udp'
 
 // Shit b/c UDP is connectionless there's no easy universal way to verify
 // that the service is "up"
@@ -17,7 +17,7 @@ test('socket() connects via UDP4', t => {
   const port = 43424
   const server = dgram.createSocket('udp4')
   server.bind(port, () => {
-    udp({ port })().then(client => {
+    udp(port)().then(client => {
       t.ok(client instanceof dgram.Socket, 'callback receives socket instance')
       client.on('close', () => {
         t.ok(true, 'client socket closed')

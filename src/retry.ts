@@ -1,14 +1,37 @@
-const NOT_READY = Symbol('NOT_READY')
-const READY = Symbol('READY')
-const WORKING = Symbol('WORKING')
+import { Fn } from './fn'
+export const NOT_READY = Symbol('NOT_READY')
+export const READY = Symbol('READY')
+export const WORKING = Symbol('WORKING')
 
-const globalConfig = {
-  interval: 250,
-  timeout: Infinity,
-  verbose: false,
+/**
+ * Each retried function MUST be in one of three states.
+ *
+ * Cannot use an enum for symbols yet, though this probably does not need
+ * symbols anyway
+ *
+ * @link https://github.com/microsoft/TypeScript/issues/18408
+ */
+export type State = typeof NOT_READY | typeof READY | typeof WORKING
+
+export interface RetryOptions {
+  interval: number
+  timeout: number
+  timeoutError: () => Error
+  verbose: false
 }
 
-module.exports = retry
+/**
+ * Default config
+ */
+const defaultOptions: RetryOptions = {
+  interval: 250,
+  timeout: Infinity,
+  // TODO: pass state information into this function
+  timeoutError: () => new Error('Timeout while waiting for remote resources'),
+  verbose: false,
+
+  // TODO: allow for injected "debug" function?
+}
 
 /**
  * Wait for resources to become available, retrying at set invervals.
@@ -24,45 +47,34 @@ module.exports = retry
  * The returned `Promise` only resolves once all supplied check functions pass.
  * It returns the result of all the check functions. If you passed in a single
  * function (not an array), it will return the result of that single function.
- *
- * @param {Array} fns async callbacks
- * @param {Object|null} config
- * @param {number} config.interval minimum milliseconds between retries
- * @param {number} config.timeout maximum duration of retry (in milliseconds)
- * @param {boolean} config.verbose
- * @return {Array|any}
  */
-async function retry(fns, config) {
-  const cfg = Object.assign({}, globalConfig, config)
-  const debug = createDebug(cfg.verbose)
+export default async function retry(
+  fn: Fn | Fn[],
+  userOptions: Partial<RetryOptions> = {}
+) {
+  const opts: RetryOptions = {
+    ...defaultOptions,
+    ...userOptions,
+  }
+  const debug = createDebug(opts.verbose)
 
   // Single wait or multiple?
-  const singular = typeof fns === 'function'
-  if (singular) {
-    fns = [fns]
-  }
+  const singular = typeof fn === 'function'
+  const fns = singular ? [fn] : fn
 
   // Absolute timeout
   // Everything races against this
   let timeout
-  const timeoutPromise = new Promise((resolve, reject) => {
-    if (cfg.timeout && cfg.timeout !== Infinity) {
-      timeout = setTimeout(
-        () =>
-          reject(
-            new Error(
-              'Timeout while waiting for external resources to become available'
-            )
-          ),
-        cfg.timeout
-      )
+  const timeoutPromise = new Promise((_resolve, reject) => {
+    if (opts.timeout && opts.timeout !== Infinity) {
+      timeout = setTimeout(() => reject(opts.timeoutError()), opts.timeout)
     }
   })
 
   // Keep track of active promises, results, and status
-  const promises = fns.map(() => {})
-  const results = fns.map(() => {})
-  const status = fns.map(() => NOT_READY)
+  const promises: Promise<void>[] = []
+  const status: State[] = fns.map(() => NOT_READY)
+  const results: any[] = [] // TODO: need to type this somehow
 
   // Retry until ready (or timeout)
   let notReady = true
@@ -72,9 +84,9 @@ async function retry(fns, config) {
       timeoutPromise,
 
       // Wait until ready or interval
-      new Promise((resolve, reject) => {
-        if (cfg.interval) {
-          setTimeout(resolve, cfg.interval)
+      new Promise<void>((resolve, reject) => {
+        if (opts.interval) {
+          setTimeout(resolve, opts.interval)
         }
 
         // Trigger any NOT_READY checks
@@ -89,15 +101,16 @@ async function retry(fns, config) {
             const promise = fn()
 
             // Handle promises
-            if (promise.then && promise.catch) {
+            if (promise && promise.then && promise.catch) {
               status[idx] = WORKING
               return (promises[idx] = promise.then(result => {
-                promises[idx] = undefined
+                delete promises[idx]
                 results[idx] = result
                 status[idx] = READY
               })).catch(err => {
+                // TODO: expose errors in a better way than console.warn
                 debug(err)
-                promises[idx] = undefined
+                delete promises[idx]
                 status[idx] = NOT_READY
               })
             }
@@ -126,10 +139,10 @@ async function retry(fns, config) {
   return singular ? results[0] : results
 }
 
-function createDebug(verbose) {
+function createDebug(verbose?: boolean) {
   if (verbose) {
-    return (...args) => console.warn(...args)
+    return (...args: any[]) => console.warn(...args)
   } else {
-    return () => {}
+    return (..._args: any[]) => {}
   }
 }

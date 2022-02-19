@@ -1,7 +1,7 @@
-const fs = require('fs')
-const path = require('path')
-const test = require('tape')
-const file = require('./file')
+import fs from 'fs'
+import path from 'path'
+import test from 'tape'
+import file from './file'
 
 test('file() fails when the file does not exist', async t => {
   t.plan(1)
@@ -14,7 +14,7 @@ test('file() fails when the file does not exist', async t => {
 
 test('file() passes on a file that exists', async t => {
   t.plan(1)
-  const fpath = path.join(__dirname, 'file.js')
+  const fpath = path.join(__dirname, 'file.ts')
   const result = await file(fpath)()
-  t.ok(result instanceof fs.Stats, 'return value is file stat')
+  t.ok(result instanceof fs.Stats, 'return value is file stats')
 })
