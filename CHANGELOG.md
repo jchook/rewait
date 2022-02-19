@@ -1,9 +1,12 @@
 # v2.0.0
 
-## ✨ What's New?
+## ✨ Major improvements
 
 - Rewritten in TypeScript! 🎉
-- 100% test coverage
+- **100% test coverage** 🎉
+
+## ⬆️ Minor improvements
+
 - `retry()` now throws a `MultiError` on timeout, instead of a simple `Error`
 - `http()` now has `connectTimeout` and `baseUrl` options
 
@@ -15,18 +18,16 @@
 
 ## 💣 Breaking Changes
 
-- `http()` previously accepted `https.createRequest()` options mixed in with
-  its own options; now they are separated into `{ requestOptions }`.
-  Similarly: `socket()` now has `{ socketConnectOpts }`, and `udp()` now has
-  `{ socketOptions }`. See API docs for more info.
+- `http()` previously accepted `https.createRequest()` options mixed in with its
+  own options; now they are separated into `{requestOptions}`. Similarly,
+  `socket()` now has `{socketConnectOpts}`. See API docs for more info.
 
-- `http()`'w automatically-encoded `auth` option still exists, but has changed
-  from `{ user, pass }` to `{ username, password }` to conform with the WHATWG
-  URL spec naming conventions.
+- `http()`'s automatically-encoded `auth` option still exists, but has changed
+  from `{user, pass}` to `{username, password}` to conform with the WHATWG URL
+  spec naming conventions.
 
 - Optional `checkOk` functions now must throw an Error to indicate a not-ok
   state. Previously these could return a falsey value.
-
 
 ## Migration Guide
 
@@ -36,35 +37,34 @@ This example demonstrates the changes that you need to make to upgrade to 2.x:
 // v1.x.x
 http('http://localhost:8080/', {
   auth: { user: 'd00d', pass: 'dog' },
-  checkOk: (res) => {
+  checkOk: res => {
     return isExpectedResponse(res) ? true : false
   },
-  data: '<message body here>',
-  method: 'POST',
+  method: 'HEAD',
 })
+```
 
+Changes to:
+
+```javascript
 // v2.0.0
 http('http://localhost:8080/', {
   // Renamed to { username, password } to match WHATWG
   auth: { username: 'd00d', password: 'dog' },
 
   // Optional checkOk functions must throw an Error in fail cases
-  checkOk: (res) => {
+  checkOk: res => {
     if (!isExpectedResponse(res)) {
       throw new Error('Failed with code: ' + res.statusCode)
     }
   },
 
-  // This is still here
-  data: '<message body here>',
-
   // http.createRequest() options go here now
   requestOptions: {
-    method: 'POST',
-  }
+    method: 'HEAD',
+  },
 })
 ```
-
 
 ---
 
@@ -77,4 +77,3 @@ http('http://localhost:8080/', {
 # v1.1.0
 
 - Adds `bail`, `onRequest`, and `onResponse` to `http()`
-
