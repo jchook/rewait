@@ -1,10 +1,10 @@
-# Interface: Fn
+# Interface: CheckFunction
 
 ## Callable
 
-### Fn
+### CheckFunction
 
-▸ **Fn**(...`args`): `void` \| `Promise`<`any`\>
+▸ **CheckFunction**(...`args`): `any`
 
 Fn: A function that can be retried or run in sequence.
 
@@ -31,4 +31,4 @@ We have exciting advancements in 4.0+ that move in this direction:
 
 #### Returns
 
-`void` \| `Promise`<`any`\>
+`any`

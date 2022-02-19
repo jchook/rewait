@@ -3,7 +3,7 @@ import https from 'https'
 
 const DEFAULT_RESPONSE_TIMEOUT = 60000 // ms
 const encode = encodeURIComponent
-const baseUrl = new URL('http://localhost/')
+const defaultBaseUrl = new URL('http://localhost/')
 
 /**
  * Authentication credentials
@@ -30,12 +30,22 @@ export interface CheckHttpOptions {
   bail?: boolean
 
   /**
+   * The "base URL" to use when constructing the URL (2nd arg to new URL())
+   */
+  baseUrl?: URL
+
+  /**
    * Check whether a response is OK
    */
   checkOk: (
     res: http.IncomingMessage,
     opts: CheckHttpOptions
   ) => any | Promise<any>
+
+  /**
+   * Alias for requestOptions.timeout, in milliseconds.
+   */
+  connectTimeout?: number
 
   /**
    * Data to write to the HTTP(S) request stream
@@ -192,16 +202,21 @@ function getUrlRequestOptions(url: URL): https.RequestOptions {
     hostname: url.hostname,
     port: url.port,
     path: `${url.pathname}${url.search}`,
-    // This is already encoded
-    // auth: encodeHttpAuth(url.username, url.password),
+    // This is already uri-encoded
     auth: `${url.username}:${url.password}`,
   }
 }
 
-function getForwardedRequestOptions(opts: Partial<CheckHttpOptions>) {
+/**
+ * Exported for testing purposes only. Do not use.
+ */
+export function getForwardedRequestOptions(opts: Partial<CheckHttpOptions>) {
   const requestOptions: Partial<https.RequestOptions> = {}
   if (opts.auth) {
     requestOptions.auth = encodeHttpAuth(opts.auth.username, opts.auth.password)
+  }
+  if (typeof opts.connectTimeout === 'number') {
+    requestOptions.timeout = opts.connectTimeout
   }
   return requestOptions
 }
@@ -213,7 +228,9 @@ export default function checkHttp(
   userUrl: string | URL,
   userOptions: Partial<CheckHttpOptions> = {}
 ) {
-  const url = userUrl instanceof URL ? userUrl : new URL(userUrl, baseUrl)
+  const baseUrl = userOptions.baseUrl || defaultBaseUrl
+  const url = new URL(userUrl, baseUrl)
+  // const url = userUrl instanceof URL ? userUrl : new URL(userUrl, baseUrl)
   const options: CheckHttpOptions = {
     checkOk,
     timeout: DEFAULT_RESPONSE_TIMEOUT,

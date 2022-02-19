@@ -4,15 +4,12 @@
 
 ### Interfaces
 
+- [AuthCredentials](interfaces/AuthCredentials.md)
 - [CheckFileOptions](interfaces/CheckFileOptions.md)
+- [CheckFunction](interfaces/CheckFunction.md)
 - [CheckHttpOptions](interfaces/CheckHttpOptions.md)
 - [CheckSocketOptions](interfaces/CheckSocketOptions.md)
-- [Fn](interfaces/Fn.md)
 - [RetryOptions](interfaces/RetryOptions.md)
-
-### Type aliases
-
-- [SocketConnectSpec](types/SocketConnectSpec.md)
 
 ### Functions
 

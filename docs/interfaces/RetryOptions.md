@@ -6,7 +6,6 @@
 
 - [interval](RetryOptions.md#interval)
 - [timeout](RetryOptions.md#timeout)
-- [verbose](RetryOptions.md#verbose)
 
 ### Methods
 
@@ -24,17 +23,17 @@ ___
 
 • **timeout**: `number`
 
-___
-
-### verbose
-
-• **verbose**: ``false``
-
 ## Methods
 
 ### timeoutError
 
-▸ **timeoutError**(): `Error`
+▸ **timeoutError**(`errors`): `Error`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `errors` | `any`[] |
 
 #### Returns
 

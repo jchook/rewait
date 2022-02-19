@@ -2,7 +2,7 @@
 
 ▸ **socket**(`dest`, `userOpts?`): () => `Promise`<`Socket`\>
 
-Check that a socket is listening.
+Check that a TCP or IPC socket is listening.
 
 You can specify a full url (e.g. tcp://localhost:3000), a port number,
 or an object of the form { host, port }. For IPC (Unix) sockets you can
@@ -12,7 +12,7 @@ pass a path to the socket.
 
 | Name | Type |
 | :------ | :------ |
-| `dest` | [`SocketConnectSpec`](../types/SocketConnectSpec.md) |
+| `dest` | `string` \| `number` \| `SocketConnectOpts` |
 | `userOpts` | `Partial`<[`CheckSocketOptions`](../interfaces/CheckSocketOptions.md)\> |
 
 #### Returns

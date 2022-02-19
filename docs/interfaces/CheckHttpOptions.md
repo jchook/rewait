@@ -6,7 +6,10 @@ Options for the checkHttp() function
 
 ### Properties
 
+- [auth](CheckHttpOptions.md#auth)
 - [bail](CheckHttpOptions.md#bail)
+- [baseUrl](CheckHttpOptions.md#baseurl)
+- [connectTimeout](CheckHttpOptions.md#connecttimeout)
 - [data](CheckHttpOptions.md#data)
 - [flowingMode](CheckHttpOptions.md#flowingmode)
 - [requestOptions](CheckHttpOptions.md#requestoptions)
@@ -21,12 +24,37 @@ Options for the checkHttp() function
 
 ## Properties
 
+### auth
+
+• `Optional` **auth**: [`AuthCredentials`](AuthCredentials.md)
+
+Automatically encodes supplied credentials and attaches them to
+requestOptions.
+
+___
+
 ### bail
 
 • `Optional` **bail**: `boolean`
 
 Instantly destroy the request as soon as it connects?
 This can save time when the response is large or takes time to send.
+
+___
+
+### baseUrl
+
+• `Optional` **baseUrl**: `URL`
+
+The "base URL" to use when constructing the URL (2nd arg to new URL())
+
+___
+
+### connectTimeout
+
+• `Optional` **connectTimeout**: `number`
+
+Alias for requestOptions.timeout, in milliseconds.
 
 ___
 
@@ -50,7 +78,7 @@ ___
 
 ### requestOptions
 
-• `Optional` **requestOptions**: `RequestOptions`
+• **requestOptions**: `RequestOptions`
 
 Node HTTP request options.
 Note: The `timeout` option is for connect time only.
@@ -67,7 +95,7 @@ Total request time timeout, in milliseconds
 
 ### checkOk
 
-▸ **checkOk**(`res`, `opts`): `void` \| `Promise`<`any`\>
+▸ **checkOk**(`res`, `opts`): `any`
 
 Check whether a response is OK
 
@@ -80,7 +108,7 @@ Check whether a response is OK
 
 #### Returns
 
-`void` \| `Promise`<`any`\>
+`any`
 
 ___
 

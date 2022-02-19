@@ -26,7 +26,7 @@ function parseUrl(
       return { path: parsed.pathname }
     }
   }
-  if (typeof opts === 'object') {
+  if (opts && typeof opts === 'object') {
     return opts
   }
   if (typeof opts === 'number') {

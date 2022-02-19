@@ -4,13 +4,8 @@ const { retry, http, socket } = require('../src')
   try {
     // Config for Couchbase REST API
     const couchbase = {
-      auth: {
-        user: 'admin',
-        pass: 'changeme',
-      },
-      protocol: 'http:',
-      host: 'localhost',
-      port: 8091,
+      auth: { username: 'admin', password: 'password' },
+      baseUrl: new URL('http://localhost:8091/'),
     }
 
     // Retry on failures
@@ -25,9 +20,11 @@ const { retry, http, socket } = require('../src')
         // Check Couchbase query service
         http('/query/service', {
           ...couchbase,
-          port: 8093,
-          method: 'POST',
           data: 'select * from system:indexes;',
+          requestOptions: {
+            port: 8093,
+            method: 'POST',
+          },
         }),
 
         // Check RabbitMQ
@@ -35,7 +32,6 @@ const { retry, http, socket } = require('../src')
       ],
       {
         timeout: 15000,
-        verbose: true,
         interval: 500,
       }
     )

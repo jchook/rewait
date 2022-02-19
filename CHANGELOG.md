@@ -1,5 +1,3 @@
-# Changes
-
 # v2.0.0
 
 ## ✨ What's New?
@@ -7,6 +5,7 @@
 - Rewritten in TypeScript! 🎉
 - 100% test coverage
 - `retry()` now throws a `MultiError` on timeout, instead of a simple `Error`
+- `http()` now has `connectTimeout` and `baseUrl` options
 
 ## 🐛 Bug Fixes
 
@@ -17,7 +16,7 @@
 ## 💣 Breaking Changes
 
 - `http()` previously accepted `https.createRequest()` options mixed in with
-  its own options. Now they are cleanly separated into `{ requestOptions }`.
+  its own options; now they are separated into `{ requestOptions }`.
   Similarly: `socket()` now has `{ socketConnectOpts }`, and `udp()` now has
   `{ socketOptions }`. See API docs for more info.
 

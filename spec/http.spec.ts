@@ -4,7 +4,11 @@ import path from 'path'
 import net from 'net'
 import http from 'http'
 import https from 'https'
-import checkHttp, { encodeHttpAuth, AuthCredentials } from '../src/http'
+import checkHttp, {
+  encodeHttpAuth,
+  AuthCredentials,
+  getForwardedRequestOptions,
+} from '../src/http'
 import { getAddrInfo } from './util'
 
 function getUsernamePassword(req: http.IncomingMessage): AuthCredentials {
@@ -250,4 +254,18 @@ test('https', async t => {
   })()
   t.ok(true, 'connection succeeded')
   server.close()
+})
+
+test('getForwardedRequestOptions()', t => {
+  const username = 'r00t'
+  const password = '😀'
+  const reqOpts = getForwardedRequestOptions({
+    auth: { username, password },
+    connectTimeout: 1000,
+  })
+  t.deepEqual(reqOpts, {
+    auth: encodeHttpAuth(username, password),
+    timeout: 1000,
+  })
+  t.end()
 })

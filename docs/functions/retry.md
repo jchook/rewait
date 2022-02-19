@@ -9,8 +9,8 @@ resolves. If it resolves faster than the interval, retry() will wait for
 the balance of the interval time before retrying. The interval defaults to
 250ms.
 
-The timeout value throws an `Error` immediately after the given duration,
-even if it has async processes still in progress. Defaults to Infinity.
+The timeout controller throws an `Error` immediately after the duration,
+even with an async processes still in progress. It defaults to Infinity.
 
 The returned `Promise` only resolves once all supplied check functions pass.
 It returns the result of all the check functions. If you passed in a single
@@ -20,7 +20,7 @@ function (not an array), it will return the result of that single function.
 
 | Name | Type |
 | :------ | :------ |
-| `fn` | [`Fn`](../interfaces/Fn.md) \| [`Fn`](../interfaces/Fn.md)[] |
+| `fn` | [`CheckFunction`](../interfaces/CheckFunction.md) \| [`CheckFunction`](../interfaces/CheckFunction.md)[] |
 | `userOptions` | `Partial`<[`RetryOptions`](../interfaces/RetryOptions.md)\> |
 
 #### Returns

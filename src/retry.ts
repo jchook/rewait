@@ -24,9 +24,7 @@ const defaultOptions: RetryOptions = {
   timeout: Infinity,
   // TODO: pass more state information into this function
   timeoutError: (errors: any[]) => {
-    const err = new MultiError('Timeout while waiting for remote resources')
-    err.errors = errors
-    return err
+    return new MultiError('Timeout while waiting for remote resources', errors)
   },
 }
 

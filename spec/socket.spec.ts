@@ -79,3 +79,11 @@ test('socket() doesn\'t blow up when you close it yourself', t => {
   })
 })
 
+test('socket() doesn\'t appreciate weird input', t => {
+  t.plan(1)
+  try {
+    socket(null as unknown as string)
+  } catch (err) {
+    t.ok(err, 'throws error')
+  }
+})

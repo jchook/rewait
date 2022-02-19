@@ -8,7 +8,7 @@ Perform a set of checks in sequence instead of in parallel.
 
 | Name | Type |
 | :------ | :------ |
-| `T` | extends [`Fn`](../interfaces/Fn.md)[] |
+| `T` | extends [`CheckFunction`](../interfaces/CheckFunction.md)[] |
 
 #### Parameters
 
