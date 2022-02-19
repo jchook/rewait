@@ -20,11 +20,18 @@ Why use rewait?
 ---------------
 
 - No dependencies
-- Very tiny (~400 logical lines of code)
-- Good test coverage
+- Tiny footprint (~400 logical lines of code)
+- 100% test coverage
 - Free and open source
 - Written in TypeScript
+- Used in major production evironments
 - Extensible
+
+
+Usage
+=====
+
+For detailed usage info, [read the API documentation here](./docs).
 
 
 Example
@@ -40,19 +47,13 @@ retry(
     socket('/var/run/app.sock'),
   ],
   {
-    interval: 500, // check (at most) every 1/2 second
+    interval: 250, // check (at most) every 1/4 second
     timeout: 60000, // timeout after 60 seconds (on the dot)
   }
 ).then(() => {
   console.log('Ready!')
 })
 ```
-
-
-Usage
-=====
-
-For detailed usage info, [read the API documentation here](./docs).
 
 
 Custom function

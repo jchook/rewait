@@ -19,6 +19,7 @@ function parseUrl(
   opts: SocketConnectSpec
 ): net.SocketConnectOpts {
   if (typeof opts === 'string') {
+    // TODO: deprecated
     const parsed = url.parse(opts)
     if (parsed.port) {
       return { port: parseInt(parsed.port), host: parsed.hostname || undefined }
@@ -46,7 +47,7 @@ export interface CheckSocketOptions {
 }
 
 /**
- * Check that a socket is listening.
+ * Check that a TCP or IPC socket is listening.
  *
  * You can specify a full url (e.g. tcp://localhost:3000), a port number,
  * or an object of the form { host, port }. For IPC (Unix) sockets you can
