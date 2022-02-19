@@ -108,6 +108,7 @@ export default async function retry(
                 return (promises[idx] = promise.then(
                   (result: any) => {
                     delete promises[idx]
+                    delete errors[idx]
                     results[idx] = result
                     status[idx] = RetryState.READY
                   },

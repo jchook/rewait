@@ -6,9 +6,23 @@ const encode = encodeURIComponent
 const baseUrl = new URL('http://localhost/')
 
 /**
+ * Authentication credentials
+ */
+export interface AuthCredentials {
+  username: string
+  password: string
+}
+
+/**
  * Options for the checkHttp() function
  */
 export interface CheckHttpOptions {
+  /**
+   * Automatically encodes supplied credentials and attaches them to
+   * requestOptions.
+   */
+  auth?: AuthCredentials
+
   /**
    * Instantly destroy the request as soon as it connects?
    * This can save time when the response is large or takes time to send.
@@ -65,8 +79,7 @@ export interface CheckHttpOptions {
 /**
  * For future use
  */
-export const defaultOptions: Partial<CheckHttpOptions> = {
-}
+export const defaultOptions: Partial<CheckHttpOptions> = {}
 
 /**
  * Helper function for encoding the "auth" parameter of http.RequestOptions
@@ -181,8 +194,16 @@ function getUrlRequestOptions(url: URL): https.RequestOptions {
     path: `${url.pathname}${url.search}`,
     // This is already encoded
     // auth: encodeHttpAuth(url.username, url.password),
-    auth: `${url.username}:${url.password}`
+    auth: `${url.username}:${url.password}`,
   }
+}
+
+function getForwardedRequestOptions(opts: Partial<CheckHttpOptions>) {
+  const requestOptions: Partial<https.RequestOptions> = {}
+  if (opts.auth) {
+    requestOptions.auth = encodeHttpAuth(opts.auth.username, opts.auth.password)
+  }
+  return requestOptions
 }
 
 /**
@@ -198,6 +219,7 @@ export default function checkHttp(
     timeout: DEFAULT_RESPONSE_TIMEOUT,
     ...userOptions,
     requestOptions: {
+      ...getForwardedRequestOptions(userOptions),
       ...getUrlRequestOptions(url),
       ...userOptions.requestOptions,
     },

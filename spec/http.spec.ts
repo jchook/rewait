@@ -4,13 +4,8 @@ import path from 'path'
 import net from 'net'
 import http from 'http'
 import https from 'https'
-import checkHttp, { encodeHttpAuth } from '../src/http'
+import checkHttp, { encodeHttpAuth, AuthCredentials } from '../src/http'
 import { getAddrInfo } from './util'
-
-interface AuthCredentials {
-  username: string
-  password: string
-}
 
 function getUsernamePassword(req: http.IncomingMessage): AuthCredentials {
   const header = req.headers.authorization || '' // get the auth header

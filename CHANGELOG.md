@@ -1,12 +1,81 @@
 # Changes
 
-## v1.1.1
+# v2.0.0
+
+## ✨ What's New?
+
+- Rewritten in TypeScript! 🎉
+- 100% test coverage
+- `retry()` now throws a `MultiError` on timeout, instead of a simple `Error`
+
+## 🐛 Bug Fixes
+
+- `retry()` now properly supports non-promise return values in check functions
+- `http()` no longer double-encodes auth info
+- `socket()` fixed a subtle URL parsing issue, a la `host` vs `hostname`
+
+## 💣 Breaking Changes
+
+- `http()` previously accepted `https.createRequest()` options mixed in with
+  its own options. Now they are cleanly separated into `{ requestOptions }`.
+  Similarly: `socket()` now has `{ socketConnectOpts }`, and `udp()` now has
+  `{ socketOptions }`. See API docs for more info.
+
+- `http()`'w automatically-encoded `auth` option still exists, but has changed
+  from `{ user, pass }` to `{ username, password }` to conform with the WHATWG
+  URL spec naming conventions.
+
+- Optional `checkOk` functions now must throw an Error to indicate a not-ok
+  state. Previously these could return a falsey value.
+
+
+## Migration Guide
+
+This example demonstrates the changes that you need to make to upgrade to 2.x:
+
+```javascript
+// v1.x.x
+http('http://localhost:8080/', {
+  auth: { user: 'd00d', pass: 'dog' },
+  checkOk: (res) => {
+    return isExpectedResponse(res) ? true : false
+  },
+  data: '<message body here>',
+  method: 'POST',
+})
+
+// v2.0.0
+http('http://localhost:8080/', {
+  // Renamed to { username, password } to match WHATWG
+  auth: { username: 'd00d', password: 'dog' },
+
+  // Optional checkOk functions must throw an Error in fail cases
+  checkOk: (res) => {
+    if (!isExpectedResponse(res)) {
+      throw new Error('Failed with code: ' + res.statusCode)
+    }
+  },
+
+  // This is still here
+  data: '<message body here>',
+
+  // http.createRequest() options go here now
+  requestOptions: {
+    method: 'POST',
+  }
+})
+```
+
+
+---
+
+# v1.1.1
 
 - Refactored to work with Node v8+
 - Fixes bugs with `file()`
 - Adds tests
 
-## v1.1.0
+# v1.1.0
 
 - Adds `bail`, `onRequest`, and `onResponse` to `http()`
 
