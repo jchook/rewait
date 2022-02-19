@@ -13,10 +13,8 @@ function netConnect(options: net.SocketConnectOpts) {
   })
 }
 
-export type SocketConnectSpec = number | string | net.SocketConnectOpts
-
 function parseUrl(
-  opts: SocketConnectSpec
+  opts: number | string | net.SocketConnectOpts
 ): net.SocketConnectOpts {
   if (typeof opts === 'string') {
     // TODO: deprecated
@@ -54,7 +52,7 @@ export interface CheckSocketOptions {
  * pass a path to the socket.
  */
 export default function checkSocket(
-  dest: SocketConnectSpec,
+  dest: number | string | net.SocketConnectOpts,
   userOpts: Partial<CheckSocketOptions> = {}
 ) {
   const socketConnectOpts = parseUrl(dest)

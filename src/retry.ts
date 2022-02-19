@@ -1,4 +1,4 @@
-import { Fn } from './fn'
+import { CheckFunction } from './fn'
 import MultiError from './MultiError'
 
 /**
@@ -38,15 +38,15 @@ const defaultOptions: RetryOptions = {
  * the balance of the interval time before retrying. The interval defaults to
  * 250ms.
  *
- * The timeout value throws an `Error` immediately after the given duration,
- * even if it has async processes still in progress. Defaults to Infinity.
+ * The timeout controller throws an `Error` immediately after the duration,
+ * even with an async processes still in progress. It defaults to Infinity.
  *
  * The returned `Promise` only resolves once all supplied check functions pass.
  * It returns the result of all the check functions. If you passed in a single
  * function (not an array), it will return the result of that single function.
  */
 export default async function retry(
-  fn: Fn | Fn[],
+  fn: CheckFunction | CheckFunction[],
   userOptions: Partial<RetryOptions> = {}
 ) {
   const opts: RetryOptions = {
@@ -56,7 +56,7 @@ export default async function retry(
 
   // Single wait or multiple?
   const singular = typeof fn === 'function'
-  const fns = singular ? [fn] : fn
+  const fns: CheckFunction[] = singular ? [fn] : fn
 
   // Keep track of active promises, results, and status
   const promises: Promise<void>[] = []

@@ -16,7 +16,7 @@
  * @link https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html#variadic-tuple-types
  *
  */
-export interface Fn {
+export interface CheckFunction {
   (...args: any[]): any | Promise<any>
 }
 

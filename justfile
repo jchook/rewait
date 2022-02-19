@@ -7,11 +7,11 @@ default:
 
 cert:
   cd "$JUSTDIR/spec/fixtures/cert" && \
-  CAROOT=. mkcert
+  CAROOT=. mkcert && \
   CAROOT=. mkcert localhost
 
 coverage:
-  c8 just test
+  c8 -n src just test
 
 docs:
   typedoc \
