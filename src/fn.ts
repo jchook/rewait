@@ -17,7 +17,7 @@
  *
  */
 export interface Fn {
-  (...args: any[]): void | Promise<any>
+  (...args: any[]): any | Promise<any>
 }
 
 

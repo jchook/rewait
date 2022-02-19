@@ -1,5 +1,6 @@
 import test from 'tape'
-import retry from './retry'
+import retry from '../src/retry'
+import MultiError from '../src/MultiError'
 
 interface FnCall {
   args: any[]
@@ -76,4 +77,36 @@ test('staggered retry', async t => {
       'retry waited patiently to retry slow check'
     )
   }
+})
+
+test('retry non-promise function', async t => {
+  const check = () => 42
+  const result = await retry(check, { timeout: 1000 })
+  t.equal(result, 42, 'returns result')
+  t.end()
+})
+
+test('retry multiple non-promise functions', async t => {
+  const check42 = () => 42
+  const check11 = () => 11
+  const result = await retry([check42, check11])
+  t.deepEqual(result, [42, 11], 'returns results in order')
+  t.end()
+})
+
+test('retry non-promise function', async t => {
+  const checkOk = () => 42
+  const checkError = () => { throw new Error('Bad!') }
+  try {
+    await retry([checkOk, checkError], {
+      interval: 1,
+      timeout: 10,
+    })
+  } catch (err) {
+    if (err instanceof MultiError) {
+      t.ok(err, 'multi error')
+      t.ok(err.errors[1], 'has the error')
+    }
+  }
+  t.end()
 })

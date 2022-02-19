@@ -71,12 +71,7 @@ export default function checkSocket(
       return client
     } finally {
       if (client && opts.close) {
-        try {
-          client.end()
-        } catch (err) {
-          // TODO: what to do here?
-          // we cannot throw
-        }
+        client.end()
       }
     }
   }

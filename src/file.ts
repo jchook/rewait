@@ -16,10 +16,6 @@ function fsStat(path: string) {
   })
 }
 
-/**
- * @typedef {(stats: fs.Stats) => boolean} FileCheckOkCallback
- */
-
 export interface CheckFileOptions {
   checkOk: (stats: fs.Stats, opts: CheckFileOptions) => void | Promise<any>
 }
@@ -36,11 +32,7 @@ export default function checkFile(
   userOpts: Partial<CheckFileOptions> = {}
 ) {
   const opts: CheckFileOptions = {
-    checkOk: stats => {
-      if (!stats) {
-        throw new Error(`File ${path} failed checkOk()`)
-      }
-    },
+    checkOk: () => {},
     ...userOpts,
   }
   return async () => {

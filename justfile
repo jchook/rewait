@@ -1,4 +1,17 @@
+set positional-arguments
 export PATH := ((justfile_directory() + "/node_modules/.bin:") + env_var("PATH"))
+export JUSTDIR := justfile_directory()
+
+default:
+  just --list
+
+cert:
+  cd "$JUSTDIR/spec/fixtures/cert" && \
+  CAROOT=. mkcert
+  CAROOT=. mkcert localhost
+
+coverage:
+  c8 just test
 
 docs:
   typedoc \
@@ -17,4 +30,4 @@ docs:
     src/index.ts
 
 test:
-  ts-node src/index.spec.ts | faucet
+  ts-node spec/index.spec.ts

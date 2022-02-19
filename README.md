@@ -16,8 +16,9 @@ available before starting your HTTP server. Rewait does that.
 Why use rewait?
 ---------------
 
+- Good test coverage
 - No dependencies
-- Very tiny (~600 lines of code)
+- Very tiny (~400 logical lines of code)
 - Extensible
 
 

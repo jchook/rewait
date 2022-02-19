@@ -1,23 +1,19 @@
 import { Fn } from './fn'
-export const NOT_READY = Symbol('NOT_READY')
-export const READY = Symbol('READY')
-export const WORKING = Symbol('WORKING')
+import MultiError from './MultiError'
 
 /**
  * Each retried function MUST be in one of three states.
- *
- * Cannot use an enum for symbols yet, though this probably does not need
- * symbols anyway
- *
- * @link https://github.com/microsoft/TypeScript/issues/18408
  */
-export type State = typeof NOT_READY | typeof READY | typeof WORKING
+export enum RetryState {
+  NOT_READY = 'NOT_READY',
+  READY = 'READY',
+  WORKING = 'WORKING',
+}
 
 export interface RetryOptions {
   interval: number
   timeout: number
-  timeoutError: () => Error
-  verbose: false
+  timeoutError: (errors: any[]) => Error
 }
 
 /**
@@ -26,11 +22,12 @@ export interface RetryOptions {
 const defaultOptions: RetryOptions = {
   interval: 250,
   timeout: Infinity,
-  // TODO: pass state information into this function
-  timeoutError: () => new Error('Timeout while waiting for remote resources'),
-  verbose: false,
-
-  // TODO: allow for injected "debug" function?
+  // TODO: pass more state information into this function
+  timeoutError: (errors: any[]) => {
+    const err = new MultiError('Timeout while waiting for remote resources')
+    err.errors = errors
+    return err
+  },
 }
 
 /**
@@ -56,28 +53,32 @@ export default async function retry(
     ...defaultOptions,
     ...userOptions,
   }
-  const debug = createDebug(opts.verbose)
 
   // Single wait or multiple?
   const singular = typeof fn === 'function'
   const fns = singular ? [fn] : fn
 
+  // Keep track of active promises, results, and status
+  const promises: Promise<void>[] = []
+  const status: RetryState[] = fns.map(() => RetryState.NOT_READY)
+  const results: any[] = [] // TODO: want to type this somehow
+  const errors: any[] = []
+
   // Absolute timeout
   // Everything races against this
-  let timeout
+  let timeout: NodeJS.Timeout | undefined
   const timeoutPromise = new Promise((_resolve, reject) => {
     if (opts.timeout && opts.timeout !== Infinity) {
-      timeout = setTimeout(() => reject(opts.timeoutError()), opts.timeout)
+      timeout = setTimeout(
+        () => reject(opts.timeoutError(errors)),
+        opts.timeout
+      )
     }
   })
 
-  // Keep track of active promises, results, and status
-  const promises: Promise<void>[] = []
-  const status: State[] = fns.map(() => NOT_READY)
-  const results: any[] = [] // TODO: need to type this somehow
-
   // Retry until ready (or timeout)
   let notReady = true
+
   do {
     // Wait until ready or interval (or timeout)
     await Promise.race([
@@ -93,33 +94,44 @@ export default async function retry(
         Promise.allSettled(
           fns.map((fn, idx) => {
             // Don't retry READY or WORKING fns
-            if (status[idx] !== NOT_READY) {
+            if (status[idx] !== RetryState.NOT_READY) {
               return promises[idx]
             }
 
-            // [Re]try!
-            const promise = fn()
+            try {
+              // [Re]try!
+              const promise = fn()
 
-            // Handle promises
-            if (promise && promise.then && promise.catch) {
-              status[idx] = WORKING
-              return (promises[idx] = promise.then(result => {
-                delete promises[idx]
-                results[idx] = result
-                status[idx] = READY
-              })).catch(err => {
-                // TODO: expose errors in a better way than console.warn
-                debug(err)
-                delete promises[idx]
-                status[idx] = NOT_READY
-              })
+              // Handle promises
+              if (promise && typeof promise.then === 'function') {
+                status[idx] = RetryState.WORKING
+                return (promises[idx] = promise.then(
+                  (result: any) => {
+                    delete promises[idx]
+                    results[idx] = result
+                    status[idx] = RetryState.READY
+                  },
+                  (err: any) => {
+                    delete promises[idx]
+                    status[idx] = RetryState.NOT_READY
+                    errors[idx] = err
+                  }
+                ))
+              }
+
+              // Non-promise OK
+              status[idx] = RetryState.READY
+              results[idx] = promise
+              return promise
+            } catch (err) {
+              // Non-promise error
+              errors[idx] = err
             }
-            return promise
           })
         )
           // Only resolve if everything is ready
           .then(() => {
-            notReady = status.some(x => x !== READY)
+            notReady = status.some(x => x !== RetryState.READY)
             if (!notReady) {
               resolve()
             }
@@ -133,16 +145,10 @@ export default async function retry(
   } while (notReady)
 
   // Ok we're done then
-  clearTimeout(timeout)
+  if (timeout) {
+    clearTimeout(timeout)
+  }
 
   // Return either a single result or array of results
   return singular ? results[0] : results
-}
-
-function createDebug(verbose?: boolean) {
-  if (verbose) {
-    return (...args: any[]) => console.warn(...args)
-  } else {
-    return (..._args: any[]) => {}
-  }
 }

@@ -1,6 +1,6 @@
 import dgram from 'dgram'
 import test from 'tape'
-import udp from './udp'
+import udp from '../src/udp'
 
 // Shit b/c UDP is connectionless there's no easy universal way to verify
 // that the service is "up"

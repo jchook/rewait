@@ -1,8 +1,8 @@
 import path from 'path'
 import net from 'net'
 import test from 'tape'
-import socket from './socket'
-import { getAddrInfo } from './util'
+import socket from '../src/socket'
+import { getAddrInfo, pause } from './util'
 
 test('socket() throws when it cannot connect', async t => {
   t.plan(2)
@@ -63,3 +63,19 @@ test('socket() connects to IPC socket', t => {
     server.close()
   })
 })
+
+test('socket() doesn\'t blow up when you close it yourself', t => {
+  const server = net.createServer()
+  server.listen(async () => {
+    const { port } = getAddrInfo(server)
+    await socket(port, {
+      close: true,
+      checkOk: async (client) => {
+        client.end()
+      }
+    })()
+    server.close()
+    t.end()
+  })
+})
+

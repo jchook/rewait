@@ -1,7 +1,10 @@
 import test from 'tape'
+import fs from 'fs'
+import path from 'path'
 import net from 'net'
 import http from 'http'
-import checkHttp, { encodeHttpAuth } from './http'
+import https from 'https'
+import checkHttp, { encodeHttpAuth } from '../src/http'
 import { getAddrInfo } from './util'
 
 interface AuthCredentials {
@@ -10,12 +13,12 @@ interface AuthCredentials {
 }
 
 function getUsernamePassword(req: http.IncomingMessage): AuthCredentials {
-  var header = req.headers.authorization || '' // get the auth header
-  var token = header.split(/\s+/).pop() || '' // and the encoded auth token
-  var auth = Buffer.from(token, 'base64').toString() // convert from base64
-  var parts = auth.split(/:/, 2) // split on colon
-  var username = decodeURIComponent(parts.shift() || '') // username is first
-  var password = decodeURIComponent(parts.shift() || '')
+  const header = req.headers.authorization || '' // get the auth header
+  const token = header.split(/\s+/).pop() || '' // and the encoded auth token
+  const auth = Buffer.from(token, 'base64').toString() // convert from base64
+  const parts = auth.split(/:/, 2) // split on colon
+  const username = decodeURIComponent(parts.shift() || '') // username is first
+  const password = decodeURIComponent(parts.shift() || '')
   return { username, password }
 }
 
@@ -166,7 +169,7 @@ test('POST request', async t => {
   const data = 'The capybara is a giant cavy rodent native to South America'
   const server = http.createServer((req, res) => {
     let received = ''
-    req.on('data', (chunk) => {
+    req.on('data', chunk => {
       received += chunk
     })
     req.on('end', () => {
@@ -182,5 +185,74 @@ test('POST request', async t => {
       method: 'POST',
     },
   })()
+  server.close()
+})
+
+test('HTTP error response code', async t => {
+  t.plan(1)
+  const server = http.createServer((_req, res) => {
+    res.statusCode = 401
+    res.end('Unauthorized')
+  })
+  server.listen()
+  const port = getAddrInfo(server).port
+  try {
+    await checkHttp(`http://127.0.0.1:${port}/`)()
+  } catch (err) {
+    if (err instanceof Error) {
+      t.match(err.message, /401/, '401 status code error')
+    }
+  }
+  server.close()
+})
+
+test('connect timeout', async t => {
+  t.plan(1)
+  const server = net.createServer(() => {})
+  server.listen()
+  const port = getAddrInfo(server).port
+  try {
+    await checkHttp(new URL(`http://127.0.0.1:${port}/`), {
+      timeout: 60000,
+      requestOptions: {
+        timeout: 100,
+      },
+    })()
+  } catch (err) {
+    if (err instanceof Error) {
+      t.match(err.message, /Connection timeout/, 'timeout error')
+    }
+  }
+  server.close()
+})
+
+test('https', async t => {
+  t.plan(1)
+  const ca = fs.readFileSync(
+    path.join(__dirname, 'fixtures', 'cert', 'rootCA.pem')
+  )
+  const cert = fs.readFileSync(
+    path.join(__dirname, 'fixtures', 'cert', 'localhost.pem')
+  )
+  const key = fs.readFileSync(
+    path.join(__dirname, 'fixtures', 'cert', 'localhost-key.pem')
+  )
+  const server = https.createServer(
+    {
+      cert,
+      key,
+    },
+    (_req, res) => {
+      res.end('42')
+    }
+  )
+  server.listen()
+  const port = getAddrInfo(server).port
+  await checkHttp(`https://localhost:${port}/`, {
+    requestOptions: {
+      ca,
+    },
+  })()
+  t.ok(true, 'connection succeeded')
   server.close()
 })

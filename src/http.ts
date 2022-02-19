@@ -21,7 +21,7 @@ export interface CheckHttpOptions {
   checkOk: (
     res: http.IncomingMessage,
     opts: CheckHttpOptions
-  ) => void | Promise<any>
+  ) => any | Promise<any>
 
   /**
    * Data to write to the HTTP(S) request stream
@@ -54,7 +54,7 @@ export interface CheckHttpOptions {
    * Node HTTP request options.
    * Note: The `timeout` option is for connect time only.
    */
-  requestOptions?: https.RequestOptions
+  requestOptions: https.RequestOptions
 
   /**
    * Total request time timeout, in milliseconds
@@ -65,9 +65,7 @@ export interface CheckHttpOptions {
 /**
  * For future use
  */
-export const defaultOptions: CheckHttpOptions = {
-  checkOk,
-  timeout: DEFAULT_RESPONSE_TIMEOUT,
+export const defaultOptions: Partial<CheckHttpOptions> = {
 }
 
 /**
@@ -77,21 +75,11 @@ export function encodeHttpAuth(username: string, password: string): string {
   return `${encode(username)}:${encode(password)}`
 }
 
-export function fixHttpOptions(userOpt: https.RequestOptions) {
-  const opt = { ...userOpt }
-  if (typeof opt.protocol === 'string') {
-    if (opt.protocol.substring(-1) !== ':') {
-      opt.protocol = opt.protocol + ':'
-    }
-  }
-  return opt
-}
-
 /**
  * Promisify http.request()
  */
 function httpRequest(checkOptions: CheckHttpOptions) {
-  const options = checkOptions.requestOptions || {}
+  const options = checkOptions.requestOptions
   return new Promise<http.IncomingMessage>((resolve, reject) => {
     const httpModule = options.protocol === 'http:' ? http : https
     const req = httpModule.request(options)
@@ -99,11 +87,11 @@ function httpRequest(checkOptions: CheckHttpOptions) {
 
     // Timeout normally only applies to connections
     // If you want to simply connect and get a status code, use `{ bail: true }`
-    if (checkOptions.timeout) {
+    if (typeof checkOptions.timeout === 'number') {
       responseTimeout = setTimeout(() => {
         req.destroy()
         reject(new Error('HTTP response timeout'))
-      }, checkOptions.timeout || DEFAULT_RESPONSE_TIMEOUT)
+      }, checkOptions.timeout)
     }
 
     // Fail fast on errors
@@ -206,7 +194,8 @@ export default function checkHttp(
 ) {
   const url = userUrl instanceof URL ? userUrl : new URL(userUrl, baseUrl)
   const options: CheckHttpOptions = {
-    ...defaultOptions,
+    checkOk,
+    timeout: DEFAULT_RESPONSE_TIMEOUT,
     ...userOptions,
     requestOptions: {
       ...getUrlRequestOptions(url),
