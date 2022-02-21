@@ -16,6 +16,14 @@ For example, you may wish to wait for a database or message queue to become
 available before starting your HTTP server. Rewait does that.
 
 
+Install
+-------
+
+```sh
+npm i rewait
+```
+
+
 Why use rewait?
 ---------------
 
@@ -31,7 +39,7 @@ Why use rewait?
 Usage
 =====
 
-For detailed usage info, [read the API documentation here](./docs).
+For detailed usage info, [see the API documentation here](./docs).
 
 
 Example
