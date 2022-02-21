@@ -19,6 +19,9 @@ available before starting your HTTP server. Rewait does that.
 Install
 -------
 
+You can [download a release](https://github.com/jchook/rewait/releases) or
+install rewait into your project with NPM.
+
 ```sh
 npm i rewait
 ```
@@ -42,8 +45,10 @@ Usage
 For detailed usage info, [see the API documentation here](./docs).
 
 
-Example
--------
+Examples
+--------
+
+See [examples](examples) for more.
 
 ```javascript
 const { retry, http, socket } = require('rewait')
@@ -75,7 +80,7 @@ Example:
 
 ```javascript
 function customCheck(options = {}) {
-  return async () => {
+  return new Promise(function() {
     if (options.neverReady) {
       throw new Error('Never ready!')
     }
@@ -85,6 +90,6 @@ function customCheck(options = {}) {
       }
     }
     // Ready, simply by not throwing
-  }
+  })
 }
 ```
