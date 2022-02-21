@@ -18,6 +18,10 @@ The returned `Promise` only resolves once all supplied check functions pass.
 It returns the result of all the check functions. If you passed in a single
 function (not an array), it will return the result of that single function.
 
+In the event of a timeout, a MultiError is thrown. It contains an `errors`
+property that holds the most recent position-wise errors (if any) for the
+supplied check functions.
+
 #### Parameters
 
 | Name | Type |

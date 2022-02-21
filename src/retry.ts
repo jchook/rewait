@@ -2,7 +2,7 @@ import { CheckFunction } from './fn'
 import MultiError from './MultiError'
 
 /**
- * Each retried function MUST be in one of three states.
+ * Ech retried function MUST be in one of three states.
  */
 export enum RetryState {
   NOT_READY = 'NOT_READY',
@@ -42,6 +42,10 @@ const defaultOptions: RetryOptions = {
  * The returned `Promise` only resolves once all supplied check functions pass.
  * It returns the result of all the check functions. If you passed in a single
  * function (not an array), it will return the result of that single function.
+ *
+ * In the event of a timeout, a MultiError is thrown. It contains an `errors`
+ * property that holds the most recent position-wise errors (if any) for the
+ * supplied check functions.
  */
 export default async function retry(
   fn: CheckFunction | CheckFunction[],
