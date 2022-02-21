@@ -14,20 +14,7 @@ coverage:
   c8 -n src just test
 
 docs:
-  typedoc \
-    --allReflectionsHaveOwnDocument \
-    --disableSources \
-    --excludePrivate \
-    --excludeProtected \
-    --gitRevision main \
-    --readme none \
-    --plugin typedoc-plugin-markdown \
-    --out docs \
-    --excludeExternals \
-    --tsconfig ./tsconfig.json \
-    --hideGenerator \
-    --hideBreadcrumbs \
-    src/index.ts
+  cd "$JUSTDIR" && typedoc
 
 test:
   ts-node spec/index.spec.ts

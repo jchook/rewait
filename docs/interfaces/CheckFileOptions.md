@@ -1,3 +1,5 @@
+[rewait](../README.md) / CheckFileOptions
+
 # Interface: CheckFileOptions
 
 ## Table of contents

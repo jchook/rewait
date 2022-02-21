@@ -1,3 +1,5 @@
+[rewait](../README.md) / CheckSocketOptions
+
 # Interface: CheckSocketOptions
 
 ## Table of contents

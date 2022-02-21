@@ -1,3 +1,5 @@
+[rewait](../README.md) / file
+
 # Function: file
 
 ▸ **file**(`path`, `userOpts?`): () => `Promise`<`Stats`\>

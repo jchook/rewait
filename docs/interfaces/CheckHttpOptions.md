@@ -1,3 +1,5 @@
+[rewait](../README.md) / CheckHttpOptions
+
 # Interface: CheckHttpOptions
 
 Options for the checkHttp() function

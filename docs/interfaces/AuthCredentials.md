@@ -1,3 +1,5 @@
+[rewait](../README.md) / AuthCredentials
+
 # Interface: AuthCredentials
 
 Authentication credentials

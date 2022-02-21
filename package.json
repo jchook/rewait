@@ -1,7 +1,7 @@
 {
   "name": "rewait",
   "version": "1.1.2",
-  "description": "Await, retry, or timeout -- http, https, tcp, sockets, files, and custom functions.",
+  "description": "Wait for external resources to become available -- http, https, tcp, sockets, files, and custom functions.",
   "keywords": [
     "wait",
     "wait for",

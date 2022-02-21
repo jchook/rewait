@@ -7,6 +7,7 @@
 
 ## ⬆️ Minor improvements
 
+- Generated API docs
 - `retry()` now throws a `MultiError` on timeout, instead of a simple `Error`
 - `http()` now has `connectTimeout` and `baseUrl` options
 
@@ -29,7 +30,7 @@
 - Optional `checkOk` functions now must throw an Error to indicate a not-ok
   state. Previously these could return a false.
 
-## Migration Guide
+## Migration Example
 
 This example demonstrates the changes that you need to make to upgrade to 2.x:
 

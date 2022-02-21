@@ -1,3 +1,5 @@
+[rewait](../README.md) / RetryOptions
+
 # Interface: RetryOptions
 
 ## Table of contents

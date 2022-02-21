@@ -1,3 +1,5 @@
+[rewait](../README.md) / sequence
+
 # Function: sequence
 
 ▸ **sequence**<`T`\>(...`fns`): () => `Promise`<`any`[]\>

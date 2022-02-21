@@ -1,3 +1,5 @@
+[rewait](../README.md) / http
+
 # Function: http
 
 ▸ **http**(`userUrl`, `userOptions?`): () => `Promise`<`IncomingMessage`\>

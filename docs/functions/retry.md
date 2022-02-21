@@ -1,3 +1,5 @@
+[rewait](../README.md) / retry
+
 # Function: retry
 
 ▸ **retry**(`fn`, `userOptions?`): `Promise`<`any`\>

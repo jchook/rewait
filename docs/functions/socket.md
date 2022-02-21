@@ -1,3 +1,5 @@
+[rewait](../README.md) / socket
+
 # Function: socket
 
 ▸ **socket**(`dest`, `userOpts?`): () => `Promise`<`Socket`\>
