@@ -29,11 +29,11 @@
   spec naming conventions.
 
 - Optional `checkOk` functions now must throw an Error to indicate a not-ok
-  state. Previously these could return a false.
+  state. Previously these could return false.
 
 ## Migration Example
 
-This example demonstrates the changes that you need to make to upgrade to 2.x:
+This example demonstrates the changes you'll want to make to upgrade to 2.x:
 
 ```javascript
 // v1.x.x
@@ -51,7 +51,7 @@ Changes to:
 ```javascript
 // v2.0.0
 http('http://localhost:8080/', {
-  // Renamed to { username, password } to match WHATWG
+  // Renamed to { username, password } to match WHATWG URL spec
   auth: { username: 'd00d', password: 'dog' },
 
   // Optional checkOk functions must throw an Error in fail cases

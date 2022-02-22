@@ -27,8 +27,6 @@
     "typescript": "^4.5.5"
   },
   "scripts": {
-    "build": "tsc",
-    "coverage": "c8 -n src npm run test",
     "test": "ts-node spec/index.spec.ts"
   }
 }

@@ -1,26 +1,32 @@
-set positional-arguments
+# Default to node_modules/.bin when executing binaries
 export PATH := ((justfile_directory() + "/node_modules/.bin:") + env_var("PATH"))
-export JUSTDIR := justfile_directory()
+
+# Where to store mkcert output
+export CAROOT := (justfile_directory() + "/spec/fixtures/cert")
 
 default:
   just --list
 
 build:
+  just build-js
+  just build-docs
+
+build-js:
   tsc
 
+build-docs:
+  typedoc
+
 cert:
-  cd "$JUSTDIR/spec/fixtures/cert" && \
-  CAROOT=. mkcert && \
-  CAROOT=. mkcert localhost
+  mkcert
+  cd $CAROOT && mkcert localhost
 
 cloc:
-  cloc "$JUSTDIR/src"
+  cloc src
 
 coverage:
   c8 -n src just test
 
-docs:
-  cd "$JUSTDIR" && typedoc
-
 test:
   ts-node spec/index.spec.ts
+
