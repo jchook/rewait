@@ -1,12 +1,7 @@
-/README.md
-/node_modules
-/src
-/spec
-/examples
-/docs
-/justfile
-/.eslintrc.yml
-/.prettierrc.js
-/coverage
-/.git
-/CHANGELOG.md
+# Ignore everything
+*
+
+# Except these
+!/dist/*
+!/package.json
+!/README.md
