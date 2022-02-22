@@ -7,7 +7,8 @@
 
 ## ⬆️ Minor improvements
 
-- Generated API docs
+- Detailed API docs
+- More example usage
 - `retry()` now throws a `MultiError` on timeout, instead of a simple `Error`
 - `http()` now has `connectTimeout` and `baseUrl` options
 
@@ -68,6 +69,12 @@ http('http://localhost:8080/', {
 ```
 
 ---
+
+# v1.1.2
+
+- Improved error messages
+- Improved JSDoc types
+- Better tests for retry()
 
 # v1.1.1
 
