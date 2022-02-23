@@ -31,8 +31,8 @@ Why use rewait?
 ---------------
 
 - No dependencies
-- 100% test coverage
 - Tiny (~400 logical lines of code)
+- 100% test coverage
 - Permissive FOSS license
 - Written in TypeScript
 - Used in major production evironments
@@ -93,3 +93,4 @@ function customCheck(options = {}) {
   })
 }
 ```
+
