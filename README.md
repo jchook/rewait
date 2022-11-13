@@ -30,6 +30,8 @@ npm i rewait
 Why use rewait?
 ---------------
 
+- Simple
+- Easy to use, familiar
 - No dependencies
 - Tiny (~400 logical lines of code)
 - 100% test coverage
@@ -92,5 +94,7 @@ function customCheck(options = {}) {
     // Ready, simply by not throwing
   })
 }
+
+retry(customCheck)
 ```
 
