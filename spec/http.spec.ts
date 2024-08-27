@@ -21,7 +21,7 @@ function getUsernamePassword(req: http.IncomingMessage): AuthCredentials {
   return { username, password }
 }
 
-test('connects via http', async t => {
+test('http() connects via http', async t => {
   t.plan(4)
   const server = http.createServer((req, res) => {
     t.ok(req, 'server received request')
@@ -40,7 +40,7 @@ test('connects via http', async t => {
   server.close()
 })
 
-test('bail on infinite data', t => {
+test('http() bail on infinite data', t => {
   t.plan(6)
   let interval: NodeJS.Timeout
 
@@ -73,7 +73,7 @@ test('bail on infinite data', t => {
   })
 })
 
-test('timeout when server fails to send data', t => {
+test('http() timeout when server fails to send data', t => {
   t.plan(5)
 
   // Build server that never sends data
@@ -100,7 +100,7 @@ test('timeout when server fails to send data', t => {
     })
 })
 
-test('connection failure', async t => {
+test('http() connection failure', async t => {
   t.plan(2)
 
   // Make request
@@ -118,7 +118,7 @@ test('connection failure', async t => {
   }
 })
 
-test('encodeHttpAuth', t => {
+test('encodeHttpAuth() properly encodes passwords', t => {
   const username = 'xyz'
   const password = 'abc😀'
   const encoded = encodeHttpAuth(username, password)
@@ -126,7 +126,7 @@ test('encodeHttpAuth', t => {
   t.end()
 })
 
-test('url parameters', async t => {
+test('http() url parameters', async t => {
   t.plan(9)
   const username = 'xyz'
   const password = 'abc😀'
@@ -163,7 +163,7 @@ test('url parameters', async t => {
   server.close()
 })
 
-test('POST request', async t => {
+test('http() POST request', async t => {
   t.plan(1)
   const data = 'The capybara is a giant cavy rodent native to South America'
   const server = http.createServer((req, res) => {
@@ -187,7 +187,7 @@ test('POST request', async t => {
   server.close()
 })
 
-test('HTTP error response code', async t => {
+test('http() error response code', async t => {
   t.plan(1)
   const server = http.createServer((_req, res) => {
     res.statusCode = 401
@@ -205,7 +205,7 @@ test('HTTP error response code', async t => {
   server.close()
 })
 
-test('connect timeout', async t => {
+test('http() connect timeout', async t => {
   t.plan(1)
   const server = net.createServer(() => {})
   server.listen()
@@ -225,7 +225,7 @@ test('connect timeout', async t => {
   server.close()
 })
 
-test('https', async t => {
+test('http() supports https', async t => {
   t.plan(1)
   const ca = fs.readFileSync(
     path.join(__dirname, 'fixtures', 'cert', 'rootCA.pem')

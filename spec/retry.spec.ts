@@ -25,14 +25,14 @@ function createChecker(numCalls = 3, lag = 10) {
   return { calls, check, reset }
 }
 
-test('retry until success', async t => {
+test('retry() until success', async t => {
   t.plan(1)
   const checker = createChecker(3, 10)
   await retry(checker.check)
   t.ok(checker.calls.length === 3, 'called 3 times')
 })
 
-test('retry timeout', async t => {
+test('retry() timeout', async t => {
   t.plan(2)
   const checker = createChecker(3, 150)
   try {
@@ -46,7 +46,7 @@ test('retry timeout', async t => {
   }
 })
 
-test('retry interval', async t => {
+test('retry() interval', async t => {
   t.plan(2)
   const checker = createChecker(3, 10)
   try {
@@ -60,7 +60,7 @@ test('retry interval', async t => {
   }
 })
 
-test('staggered retry', async t => {
+test('retry() staggered', async t => {
   const slow = createChecker(5, 100)
   const fast = createChecker(5, 10)
   try {
@@ -79,14 +79,14 @@ test('staggered retry', async t => {
   }
 })
 
-test('retry non-promise function', async t => {
+test('retry() non-promise function', async t => {
   const check = () => 42
   const result = await retry(check, { timeout: 1000 })
   t.equal(result, 42, 'returns result')
   t.end()
 })
 
-test('retry multiple non-promise functions', async t => {
+test('retry() multiple non-promise functions', async t => {
   const check42 = () => 42
   const check11 = () => 11
   const result = await retry([check42, check11])
@@ -94,7 +94,7 @@ test('retry multiple non-promise functions', async t => {
   t.end()
 })
 
-test('retry non-promise function', async t => {
+test('retry() non-promise function', async t => {
   const checkOk = () => 42
   const checkError = () => { throw new Error('Bad!') }
   try {
