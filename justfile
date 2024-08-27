@@ -28,5 +28,5 @@ coverage:
   c8 -n src just test
 
 test:
-  ts-node spec/index.spec.ts
+  tsx spec/index.spec.ts | faucet
 
