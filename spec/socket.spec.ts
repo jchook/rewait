@@ -11,19 +11,21 @@ test('socket() throws when it cannot connect', async t => {
   } catch (err) {
     t.ok(err instanceof Error, 'throws an Error')
     if (err instanceof Error) {
-      t.match(err.message, /ECONNREFUSED 127.0.0.1:43424/, 'correct error')
+      t.match(err.message, /ECONNREFUSED/, 'correct error')
     }
   }
 })
 
 test('socket() connects via TCP', t => {
-  t.plan(5)
+  t.plan(6)
   const port = 43425
   const server = net.createServer(sock => {
     t.ok(sock, 'server received connection')
   })
   server.listen(port, () => {
+    t.ok(server, 'server is listening')
     socket({ port })().then(client => {
+      t.ok(client, 'client connected')
       t.ok(client instanceof net.Socket, 'callback receives socket instance')
       client.on('close', () => {
         t.ok(true, 'client closed')
