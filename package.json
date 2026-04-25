@@ -6,7 +6,7 @@
   "author": "Wes Roberts",
   "license": "ISC",
   "devDependencies": {
-    "eslint": "^9.32.0",
+    "eslint": "^9.39.1",
     "tape": "^5.2.2"
   },
   "scripts": {
