@@ -3,8 +3,4 @@
  *
  * Throw an error to indiciate a "not ready" state.
  */
-export interface CheckFunction {
-  (...args: any[]): any | Promise<any>
-}
-
-
+export type CheckFunction = (...args: any[]) => any | Promise<any>

@@ -1,5 +1,4 @@
 module.exports = {
-  allReflectionsHaveOwnDocument: true,
   disableSources: true,
   entryPoints: ['src/index.ts'],
   excludeExternals: true,

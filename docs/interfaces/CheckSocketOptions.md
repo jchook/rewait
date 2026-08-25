@@ -1,43 +1,39 @@
+[**rewait**](../README.md)
+
+***
+
 [rewait](../README.md) / CheckSocketOptions
 
 # Interface: CheckSocketOptions
 
-## Table of contents
-
-### Properties
-
-- [close](CheckSocketOptions.md#close)
-- [socketConnectOpts](CheckSocketOptions.md#socketconnectopts)
-
-### Methods
-
-- [checkOk](CheckSocketOptions.md#checkok)
-
 ## Properties
-
-### close
-
-• **close**: `boolean`
-
-___
-
-### socketConnectOpts
-
-• **socketConnectOpts**: `SocketConnectOpts`
-
-## Methods
 
 ### checkOk
 
-▸ **checkOk**(`client`, `opts`): `void` \| `Promise`<`any`\>
+> **checkOk**: (`client`, `opts`) => `unknown`
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `client` | `Socket` |
-| `opts` | [`CheckSocketOptions`](CheckSocketOptions.md) |
+##### client
+
+`Socket`
+
+##### opts
+
+`CheckSocketOptions`
 
 #### Returns
 
-`void` \| `Promise`<`any`\>
+`unknown`
+
+***
+
+### close
+
+> **close**: `boolean`
+
+***
+
+### socketConnectOpts
+
+> **socketConnectOpts**: `SocketConnectOpts`

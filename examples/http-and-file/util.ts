@@ -1,9 +1,9 @@
-import http from 'http'
-import fs from 'fs'
+import fs from 'node:fs'
+import http from 'node:http'
 
 export const tempFile = 'temp.txt'
 
-let httpServer: http.Server | undefined = undefined
+let httpServer: http.Server | undefined
 
 export function pause(ms: number) {
   return new Promise<void>(resolve => {
@@ -31,7 +31,7 @@ export async function createFile() {
 
 export function cleanUp() {
   fs.rmSync(tempFile)
-  if (httpServer && httpServer.listening) {
+  if (httpServer?.listening) {
     httpServer.close()
   }
 }

@@ -1,12 +1,12 @@
+import fs from 'node:fs'
+import http from 'node:http'
+import https from 'node:https'
+import net from 'node:net'
+import path from 'node:path'
 import test from 'tape'
-import fs from 'fs'
-import path from 'path'
-import net from 'net'
-import http from 'http'
-import https from 'https'
 import checkHttp, {
+  type AuthCredentials,
   encodeHttpAuth,
-  AuthCredentials,
   getForwardedRequestOptions,
 } from '../src/http'
 import { getAddrInfo } from './util'

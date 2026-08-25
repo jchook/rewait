@@ -1,6 +1,6 @@
 {
   "name": "rewait",
-  "version": "2.0.0-rc.0",
+  "version": "2.0.0",
   "description": "Wait for external resources to become available -- http, https, tcp, sockets, files, and custom functions.",
   "keywords": [
     "wait",
@@ -15,21 +15,71 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./file": {
+      "types": "./dist/file.d.ts",
+      "default": "./dist/file.js"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "default": "./dist/http.js"
+    },
+    "./retry": {
+      "types": "./dist/retry.d.ts",
+      "default": "./dist/retry.js"
+    },
+    "./sequence": {
+      "types": "./dist/sequence.d.ts",
+      "default": "./dist/sequence.js"
+    },
+    "./socket": {
+      "types": "./dist/socket.d.ts",
+      "default": "./dist/socket.js"
+    },
+    "./udp": {
+      "types": "./dist/udp.d.ts",
+      "default": "./dist/udp.js"
+    },
+    "./MultiError": {
+      "types": "./dist/MultiError.d.ts",
+      "default": "./dist/MultiError.js"
+    },
+    "./src/*.js": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    },
+    "./src/*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    },
+    "./package.json": "./package.json"
+  },
   "author": "Wes Roberts",
   "license": "MIT",
+  "engines": {
+    "node": ">=14.18.0"
+  },
   "devDependencies": {
-    "@types/node": "^22.5.0",
+    "@biomejs/biome": "^2.5.10",
+    "@types/node": "^26.3.0",
     "@types/tape": "^5.6.4",
     "c8": "^10.1.2",
-    "eslint": "^9.9.1",
     "faucet": "^0.0.4",
     "tape": "^5.8.1",
     "tsx": "^4.19.0",
-    "typedoc": "^0.26.6",
-    "typedoc-plugin-markdown": "^4.2.6",
-    "typescript": "^5.5.4"
+    "typedoc": "0.28.20",
+    "typedoc-plugin-markdown": "^4.12.0",
+    "typescript": "~6.0.3"
   },
   "scripts": {
-    "test": "ts-node spec/index.spec.ts"
+    "build": "tsc && node scripts/cjs-interop.js",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "prepublishOnly": "tsc && node scripts/cjs-interop.js",
+    "test": "bun spec/index.spec.ts"
   }
 }

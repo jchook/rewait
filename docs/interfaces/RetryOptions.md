@@ -1,41 +1,34 @@
+[**rewait**](../README.md)
+
+***
+
 [rewait](../README.md) / RetryOptions
 
 # Interface: RetryOptions
-
-## Table of contents
-
-### Properties
-
-- [interval](RetryOptions.md#interval)
-- [timeout](RetryOptions.md#timeout)
-
-### Methods
-
-- [timeoutError](RetryOptions.md#timeouterror)
 
 ## Properties
 
 ### interval
 
-• **interval**: `number`
+> **interval**: `number`
 
-___
+***
 
 ### timeout
 
-• **timeout**: `number`
+> **timeout**: `number`
 
-## Methods
+***
 
 ### timeoutError
 
-▸ **timeoutError**(`errors`): `Error`
+> **timeoutError**: (`errors`) => `Error`
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `errors` | `any`[] |
+##### errors
+
+`any`[]
 
 #### Returns
 

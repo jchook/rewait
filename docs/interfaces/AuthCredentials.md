@@ -1,24 +1,21 @@
+[**rewait**](../README.md)
+
+***
+
 [rewait](../README.md) / AuthCredentials
 
 # Interface: AuthCredentials
 
 Authentication credentials
 
-## Table of contents
-
-### Properties
-
-- [password](AuthCredentials.md#password)
-- [username](AuthCredentials.md#username)
-
 ## Properties
 
 ### password
 
-• **password**: `string`
+> **password**: `string`
 
-___
+***
 
 ### username
 
-• **username**: `string`
+> **username**: `string`

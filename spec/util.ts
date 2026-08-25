@@ -1,4 +1,4 @@
-import net from 'net'
+import type net from 'node:net'
 
 export function getAddrInfo(server: net.Server): net.AddressInfo {
   const addr = server.address()
@@ -9,7 +9,7 @@ export function getAddrInfo(server: net.Server): net.AddressInfo {
 }
 
 export function pause(ms: number) {
-  return new Promise<void>((resolve) => {
+  return new Promise<void>(resolve => {
     setTimeout(resolve, ms)
   })
 }

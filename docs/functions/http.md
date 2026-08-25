@@ -1,24 +1,25 @@
+[**rewait**](../README.md)
+
+***
+
 [rewait](../README.md) / http
 
-# Function: http
+# Function: http()
 
-▸ **http**(`userUrl`, `userOptions?`): () => `Promise`<`IncomingMessage`\>
+> **http**(`userUrl`, `userOptions?`): () => `Promise`\<`IncomingMessage`\>
 
 Check to see if an HTTP resource is available
 
-#### Parameters
+## Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `userUrl` | `string` \| `URL` |
-| `userOptions` | `Partial`<[`CheckHttpOptions`](../interfaces/CheckHttpOptions.md)\> |
+### userUrl
 
-#### Returns
+`string` \| `URL`
 
-`fn`
+### userOptions?
 
-▸ (): `Promise`<`IncomingMessage`\>
+`Partial`\<[`CheckHttpOptions`](../interfaces/CheckHttpOptions.md)\> = `{}`
 
-##### Returns
+## Returns
 
-`Promise`<`IncomingMessage`\>
+() => `Promise`\<`IncomingMessage`\>

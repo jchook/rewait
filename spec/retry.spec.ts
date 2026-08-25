@@ -1,6 +1,6 @@
 import test from 'tape'
-import retry from '../src/retry'
 import MultiError from '../src/MultiError'
+import retry from '../src/retry'
 
 interface FnCall {
   args: any[]
@@ -96,7 +96,9 @@ test('retry() multiple non-promise functions', async t => {
 
 test('retry() non-promise function', async t => {
   const checkOk = () => 42
-  const checkError = () => { throw new Error('Bad!') }
+  const checkError = () => {
+    throw new Error('Bad!')
+  }
   try {
     await retry([checkOk, checkError], {
       interval: 1,

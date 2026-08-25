@@ -1,8 +1,8 @@
-import { CheckFunction } from './fn'
+import type { CheckFunction } from './fn'
 import MultiError from './MultiError'
 
 /**
- * Ech retried function MUST be in one of three states.
+ * Each retried function MUST be in one of three states.
  */
 export enum RetryState {
   NOT_READY = 'NOT_READY',
@@ -14,6 +14,14 @@ export interface RetryOptions {
   interval: number
   timeout: number
   timeoutError: (errors: any[]) => Error
+}
+
+/**
+ * Maps a tuple of check functions to a tuple of their awaited results,
+ * e.g. [() => Promise<A>, () => B] becomes [A, B].
+ */
+export type CheckResults<T extends readonly CheckFunction[]> = {
+  -readonly [P in keyof T]: Awaited<ReturnType<T[P]>>
 }
 
 /**
@@ -48,10 +56,18 @@ const defaultOptions: RetryOptions = {
  *
  * The timeout duration defaults to Infinity.
  */
+export default function retry<T extends CheckFunction>(
+  fn: T,
+  userOptions?: Partial<RetryOptions>
+): Promise<Awaited<ReturnType<T>>>
+export default function retry<T extends readonly CheckFunction[]>(
+  fn: readonly [...T],
+  userOptions?: Partial<RetryOptions>
+): Promise<CheckResults<T>>
 export default async function retry(
-  fn: CheckFunction | CheckFunction[],
+  fn: CheckFunction | readonly CheckFunction[],
   userOptions: Partial<RetryOptions> = {}
-) {
+): Promise<any> {
   const opts: RetryOptions = {
     ...defaultOptions,
     ...userOptions,
@@ -59,7 +75,7 @@ export default async function retry(
 
   // Single wait or multiple?
   const singular = typeof fn === 'function'
-  const fns: CheckFunction[] = singular ? [fn] : fn
+  const fns: readonly CheckFunction[] = singular ? [fn] : fn
 
   // Keep track of active promises, results, and status
   const promises: Promise<void>[] = []
@@ -108,7 +124,7 @@ export default async function retry(
               // Handle promises
               if (promise && typeof promise.then === 'function') {
                 status[idx] = RetryState.WORKING
-                return (promises[idx] = promise.then(
+                promises[idx] = promise.then(
                   (result: any) => {
                     delete promises[idx]
                     delete errors[idx]
@@ -120,7 +136,8 @@ export default async function retry(
                     status[idx] = RetryState.NOT_READY
                     errors[idx] = err
                   }
-                ))
+                )
+                return promises[idx]
               }
 
               // Non-promise OK
@@ -130,6 +147,7 @@ export default async function retry(
             } catch (err) {
               // Non-promise error
               errors[idx] = err
+              return undefined
             }
           })
         )

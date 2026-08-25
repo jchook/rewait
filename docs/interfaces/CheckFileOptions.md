@@ -1,26 +1,27 @@
+[**rewait**](../README.md)
+
+***
+
 [rewait](../README.md) / CheckFileOptions
 
 # Interface: CheckFileOptions
 
-## Table of contents
-
-### Methods
-
-- [checkOk](CheckFileOptions.md#checkok)
-
-## Methods
+## Properties
 
 ### checkOk
 
-▸ **checkOk**(`stats`, `opts`): `void` \| `Promise`<`any`\>
+> **checkOk**: (`stats`, `opts`) => `unknown`
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `stats` | `Stats` |
-| `opts` | [`CheckFileOptions`](CheckFileOptions.md) |
+##### stats
+
+`Stats`
+
+##### opts
+
+`CheckFileOptions`
 
 #### Returns
 
-`void` \| `Promise`<`any`\>
+`unknown`

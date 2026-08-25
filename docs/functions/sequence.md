@@ -1,29 +1,27 @@
+[**rewait**](../README.md)
+
+***
+
 [rewait](../README.md) / sequence
 
-# Function: sequence
+# Function: sequence()
 
-▸ **sequence**<`T`\>(...`fns`): () => `Promise`<`any`[]\>
+> **sequence**\<`T`\>(...`fns`): () => `Promise`\<[`CheckResults`](../type-aliases/CheckResults.md)\<`T`\>\>
 
 Perform a set of checks in sequence instead of in parallel.
 
-#### Type parameters
+## Type Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `T` | extends [`CheckFunction`](../interfaces/CheckFunction.md)[] |
+### T
 
-#### Parameters
+`T` *extends* readonly [`CheckFunction`](../type-aliases/CheckFunction.md)[]
 
-| Name | Type |
-| :------ | :------ |
-| `...fns` | `T` |
+## Parameters
 
-#### Returns
+### fns
 
-`fn`
+...`T`
 
-▸ (): `Promise`<`any`[]\>
+## Returns
 
-##### Returns
-
-`Promise`<`any`[]\>
+() => `Promise`\<[`CheckResults`](../type-aliases/CheckResults.md)\<`T`\>\>

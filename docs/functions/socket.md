@@ -1,8 +1,12 @@
+[**rewait**](../README.md)
+
+***
+
 [rewait](../README.md) / socket
 
-# Function: socket
+# Function: socket()
 
-▸ **socket**(`dest`, `userOpts?`): () => `Promise`<`Socket`\>
+> **socket**(`dest`, `userOpts?`): () => `Promise`\<`Socket`\>
 
 Check that a TCP or IPC socket is listening.
 
@@ -10,19 +14,16 @@ You can specify a full url (e.g. tcp://localhost:3000), a port number,
 or an object of the form { host, port }. For IPC (Unix) sockets you can
 pass a path to the socket.
 
-#### Parameters
+## Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `dest` | `string` \| `number` \| `SocketConnectOpts` |
-| `userOpts` | `Partial`<[`CheckSocketOptions`](../interfaces/CheckSocketOptions.md)\> |
+### dest
 
-#### Returns
+`string` \| `number` \| `SocketConnectOpts`
 
-`fn`
+### userOpts?
 
-▸ (): `Promise`<`Socket`\>
+`Partial`\<[`CheckSocketOptions`](../interfaces/CheckSocketOptions.md)\> = `{}`
 
-##### Returns
+## Returns
 
-`Promise`<`Socket`\>
+() => `Promise`\<`Socket`\>

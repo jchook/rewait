@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'node:fs'
 
 /**
  * Promisify fs.stat() (support for node pre v10)
@@ -17,7 +17,7 @@ function fsStat(path: string) {
 }
 
 export interface CheckFileOptions {
-  checkOk: (stats: fs.Stats, opts: CheckFileOptions) => void | Promise<any>
+  checkOk: (stats: fs.Stats, opts: CheckFileOptions) => unknown
 }
 
 /**

@@ -15,4 +15,3 @@ test('MultiError', t => {
   t.equal(nextErr.message, message)
   t.end()
 })
-

@@ -1,8 +1,8 @@
-import path from 'path'
-import net from 'net'
+import net from 'node:net'
+import path from 'node:path'
 import test from 'tape'
 import socket from '../src/socket'
-import { getAddrInfo, pause } from './util'
+import { getAddrInfo } from './util'
 
 test('socket() throws when it cannot connect', async t => {
   t.plan(2)
@@ -11,13 +11,18 @@ test('socket() throws when it cannot connect', async t => {
   } catch (err) {
     t.ok(err instanceof Error, 'throws an Error')
     if (err instanceof Error) {
-      t.match(err.message, /ECONNREFUSED/, 'correct error')
+      // Node >= 20 attempts IPv4 and IPv6 in parallel and throws an
+      // AggregateError with an empty message on failure
+      const message =
+        err.message ||
+        (err as AggregateError).errors?.map(e => e.message).join(', ')
+      t.match(message, /ECONNREFUSED/, 'correct error')
     }
   }
 })
 
 test('socket() connects via TCP', t => {
-  t.plan(6)
+  t.plan(7)
   const port = 43425
   const server = net.createServer(sock => {
     t.ok(sock, 'server received connection')
@@ -43,13 +48,12 @@ test('socket() connects with various URLs', t => {
   server.listen(async () => {
     const { address, port } = getAddrInfo(server)
     t.ok(await socket(port)(), 'port only')
-    t.ok(await socket('tcp::' + port)(), 'prot::port')
-    t.ok(await socket('tcp:' + address + ':' + port)(), 'prot:host:port')
+    t.ok(await socket(`tcp::${port}`)(), 'prot::port')
+    t.ok(await socket(`tcp:${address}:${port}`)(), 'prot:host:port')
     server.close()
     t.end()
   })
 })
-
 
 test('socket() connects to IPC socket', t => {
   t.plan(5)
@@ -59,29 +63,29 @@ test('socket() connects to IPC socket', t => {
   socket(sock)().catch(err => t.ok(err, 'cannot connect to non-listening sock'))
   server.listen(sock, async () => {
     t.ok(await socket(sock)(), 'only socket path')
-    t.ok(await socket('tcp://' + fullPath)(), 'tcp:///full/path/to/sock')
+    t.ok(await socket(`tcp://${fullPath}`)(), 'tcp:///full/path/to/sock')
     t.ok(await socket({ path: sock })(), 'path specified in object')
     t.ok(await socket({ path: sock, port: 55 })(), 'path overrides port')
     server.close()
   })
 })
 
-test('socket() doesn\'t blow up when you close it yourself', t => {
+test("socket() doesn't blow up when you close it yourself", t => {
   const server = net.createServer()
   server.listen(async () => {
     const { port } = getAddrInfo(server)
     await socket(port, {
       close: true,
-      checkOk: async (client) => {
+      checkOk: async client => {
         client.end()
-      }
+      },
     })()
     server.close()
     t.end()
   })
 })
 
-test('socket() doesn\'t appreciate weird input', t => {
+test("socket() doesn't appreciate weird input", t => {
   t.plan(1)
   try {
     socket(null as unknown as string)

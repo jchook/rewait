@@ -1,5 +1,5 @@
-import net from 'net'
-import url from 'url'
+import net from 'node:net'
+import url from 'node:url'
 
 /**
  * Promisify net.connect()
@@ -20,7 +20,10 @@ function parseUrl(
     // TODO: deprecated
     const parsed = url.parse(opts)
     if (parsed.port) {
-      return { port: parseInt(parsed.port), host: parsed.hostname || undefined }
+      return {
+        port: parseInt(parsed.port, 10),
+        host: parsed.hostname || undefined,
+      }
     }
     if (parsed.pathname) {
       return { path: parsed.pathname }
@@ -39,7 +42,7 @@ function parseUrl(
 }
 
 export interface CheckSocketOptions {
-  checkOk: (client: net.Socket, opts: CheckSocketOptions) => void | Promise<any>
+  checkOk: (client: net.Socket, opts: CheckSocketOptions) => unknown
   close: boolean
   socketConnectOpts: net.SocketConnectOpts
 }
@@ -63,7 +66,7 @@ export default function checkSocket(
     ...userOpts,
   }
   return async () => {
-    let client
+    let client: net.Socket | undefined
     try {
       client = await netConnect(socketConnectOpts)
       await opts.checkOk(client, opts)

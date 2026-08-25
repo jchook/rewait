@@ -1,170 +1,166 @@
+[**rewait**](../README.md)
+
+***
+
 [rewait](../README.md) / CheckHttpOptions
 
 # Interface: CheckHttpOptions
 
 Options for the checkHttp() function
 
-## Table of contents
-
-### Properties
-
-- [auth](CheckHttpOptions.md#auth)
-- [bail](CheckHttpOptions.md#bail)
-- [baseUrl](CheckHttpOptions.md#baseurl)
-- [connectTimeout](CheckHttpOptions.md#connecttimeout)
-- [data](CheckHttpOptions.md#data)
-- [flowingMode](CheckHttpOptions.md#flowingmode)
-- [requestOptions](CheckHttpOptions.md#requestoptions)
-- [timeout](CheckHttpOptions.md#timeout)
-
-### Methods
-
-- [checkOk](CheckHttpOptions.md#checkok)
-- [onError](CheckHttpOptions.md#onerror)
-- [onRequest](CheckHttpOptions.md#onrequest)
-- [onResponse](CheckHttpOptions.md#onresponse)
-
 ## Properties
 
-### auth
+### auth?
 
-• `Optional` **auth**: [`AuthCredentials`](AuthCredentials.md)
+> `optional` **auth?**: [`AuthCredentials`](AuthCredentials.md)
 
 Automatically encodes supplied credentials and attaches them to
 requestOptions.
 
-___
+***
 
-### bail
+### bail?
 
-• `Optional` **bail**: `boolean`
+> `optional` **bail?**: `boolean`
 
 Instantly destroy the request as soon as it connects?
 This can save time when the response is large or takes time to send.
 
-___
+***
 
-### baseUrl
+### baseUrl?
 
-• `Optional` **baseUrl**: `URL`
+> `optional` **baseUrl?**: `URL`
 
 The "base URL" to use when constructing the URL (2nd arg to new URL())
 
-___
-
-### connectTimeout
-
-• `Optional` **connectTimeout**: `number`
-
-Alias for requestOptions.timeout, in milliseconds.
-
-___
-
-### data
-
-• `Optional` **data**: `any`
-
-Data to write to the HTTP(S) request stream
-
-___
-
-### flowingMode
-
-• `Optional` **flowingMode**: `boolean`
-
-Whether to put the response stream into "flowing mode" automatically. If
-you set this to false, you may need to call res.resume() manually in the
-request's response callback.
-
-___
-
-### requestOptions
-
-• **requestOptions**: `RequestOptions`
-
-Node HTTP request options.
-Note: The `timeout` option is for connect time only.
-
-___
-
-### timeout
-
-• **timeout**: `number`
-
-Total request time timeout, in milliseconds
-
-## Methods
+***
 
 ### checkOk
 
-▸ **checkOk**(`res`, `opts`): `any`
+> **checkOk**: (`res`, `opts`) => `any`
 
 Check whether a response is OK
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `res` | `IncomingMessage` |
-| `opts` | [`CheckHttpOptions`](CheckHttpOptions.md) |
+##### res
+
+`IncomingMessage`
+
+##### opts
+
+`CheckHttpOptions`
 
 #### Returns
 
 `any`
 
-___
+***
 
-### onError
+### connectTimeout?
 
-▸ `Optional` **onError**(`err`, `opts`): `void`
+> `optional` **connectTimeout?**: `number`
+
+Alias for requestOptions.timeout, in milliseconds.
+
+***
+
+### data?
+
+> `optional` **data?**: `any`
+
+Data to write to the HTTP(S) request stream
+
+***
+
+### flowingMode?
+
+> `optional` **flowingMode?**: `boolean`
+
+Whether to put the response stream into "flowing mode" automatically. If
+you set this to false, you may need to call res.resume() manually in the
+request's response callback.
+
+***
+
+### onError?
+
+> `optional` **onError?**: (`err`, `opts`) => `void`
 
 Callback to handle request error
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `err` | `Error` |
-| `opts` | [`CheckHttpOptions`](CheckHttpOptions.md) |
+##### err
+
+`Error`
+
+##### opts
+
+`CheckHttpOptions`
 
 #### Returns
 
 `void`
 
-___
+***
 
-### onRequest
+### onRequest?
 
-▸ `Optional` **onRequest**(`req`, `opts`): `void`
+> `optional` **onRequest?**: (`req`, `opts`) => `void`
 
 Callback to handle a successful request
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `req` | `ClientRequest` |
-| `opts` | [`CheckHttpOptions`](CheckHttpOptions.md) |
+##### req
+
+`ClientRequest`
+
+##### opts
+
+`CheckHttpOptions`
 
 #### Returns
 
 `void`
 
-___
+***
 
-### onResponse
+### onResponse?
 
-▸ `Optional` **onResponse**(`req`, `opts`): `void`
+> `optional` **onResponse?**: (`req`, `opts`) => `void`
 
 Callback to handle a response
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `req` | `IncomingMessage` |
-| `opts` | [`CheckHttpOptions`](CheckHttpOptions.md) |
+##### req
+
+`IncomingMessage`
+
+##### opts
+
+`CheckHttpOptions`
 
 #### Returns
 
 `void`
+
+***
+
+### requestOptions
+
+> **requestOptions**: `RequestOptions`
+
+Node HTTP request options.
+Note: The `timeout` option is for connect time only.
+
+***
+
+### timeout
+
+> **timeout**: `number`
+
+Total request time timeout, in milliseconds

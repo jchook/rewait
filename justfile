@@ -16,6 +16,7 @@ build:
 # Compile TypeScript to JavaScript
 build-js:
   tsc
+  node scripts/cjs-interop.js
 
 # Compile the documentation
 build-docs:
@@ -30,11 +31,19 @@ cert:
 cloc:
   cloc src
 
-# Generate a test coverage report
+# Format the code
+format:
+  biome format --write .
+
+# Lint the code
+lint:
+  biome check .
+
+# Generate a test coverage report (needs a node runner for V8 coverage)
 coverage:
-  c8 --100 -n src pnpm run test
+  c8 --100 -n src tsx spec/index.spec.ts
 
 # Run the tests
 test:
-  tsx spec/index.spec.ts | faucet
+  bun spec/index.spec.ts | faucet
 

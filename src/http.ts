@@ -1,5 +1,5 @@
-import http from 'http'
-import https from 'https'
+import http from 'node:http'
+import https from 'node:https'
 
 const DEFAULT_RESPONSE_TIMEOUT = 60000 // ms
 const encode = encodeURIComponent
@@ -188,10 +188,9 @@ function httpRequest(checkOptions: CheckHttpOptions) {
 }
 
 function checkOk(res: http.IncomingMessage) {
-  const ok =
-    res && res.statusCode && res.statusCode >= 200 && res.statusCode < 400
+  const ok = res?.statusCode && res.statusCode >= 200 && res.statusCode < 400
   if (!ok) {
-    throw new Error('Received HTTP error code: ' + res.statusCode)
+    throw new Error(`Received HTTP error code: ${res.statusCode}`)
   }
 }
 
