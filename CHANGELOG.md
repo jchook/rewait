@@ -1,5 +1,7 @@
 # v2.0.0
 
+See [MIGRATION.md](./MIGRATION.md) for a complete 1.x upgrade guide.
+
 ## ✨ Major improvements
 
 - Rewritten in TypeScript! 🎉

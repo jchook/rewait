@@ -27,6 +27,9 @@ npm i rewait
 ```
 
 
+Upgrading from 1.x? See [MIGRATION.md](./MIGRATION.md).
+
+
 Why use rewait?
 ---------------
 
