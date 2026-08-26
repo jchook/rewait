@@ -8,8 +8,8 @@ import checkHttp, {
   type AuthCredentials,
   encodeHttpAuth,
   getForwardedRequestOptions,
-} from '../src/http'
-import { getAddrInfo } from './util'
+} from '../src/http.ts'
+import { getAddrInfo } from './util.ts'
 
 function getUsernamePassword(req: http.IncomingMessage): AuthCredentials {
   const header = req.headers.authorization || '' // get the auth header
@@ -228,13 +228,13 @@ test('http() connect timeout', async t => {
 test('http() supports https', async t => {
   t.plan(1)
   const ca = fs.readFileSync(
-    path.join(__dirname, 'fixtures', 'cert', 'rootCA.pem')
+    path.join(import.meta.dirname, 'fixtures', 'cert', 'rootCA.pem')
   )
   const cert = fs.readFileSync(
-    path.join(__dirname, 'fixtures', 'cert', 'localhost.pem')
+    path.join(import.meta.dirname, 'fixtures', 'cert', 'localhost.pem')
   )
   const key = fs.readFileSync(
-    path.join(__dirname, 'fixtures', 'cert', 'localhost-key.pem')
+    path.join(import.meta.dirname, 'fixtures', 'cert', 'localhost-key.pem')
   )
   const server = https.createServer(
     {

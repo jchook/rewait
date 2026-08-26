@@ -1,5 +1,5 @@
 import test from 'tape'
-import MultiError from '../src/MultiError'
+import MultiError from '../src/MultiError.ts'
 
 test('MultiError', t => {
   const message = 'test message'

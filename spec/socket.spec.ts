@@ -1,8 +1,8 @@
 import net from 'node:net'
 import path from 'node:path'
 import test from 'tape'
-import socket from '../src/socket'
-import { getAddrInfo } from './util'
+import socket from '../src/socket.ts'
+import { getAddrInfo } from './util.ts'
 
 test('socket() throws when it cannot connect', async t => {
   t.plan(2)
@@ -47,9 +47,11 @@ test('socket() connects with various URLs', t => {
   const server = net.createServer()
   server.listen(async () => {
     const { address, port } = getAddrInfo(server)
+    // IPv6 addresses must be bracketed in URLs, e.g. tcp:[::]:3000
+    const host = address.includes(':') ? `[${address}]` : address
     t.ok(await socket(port)(), 'port only')
     t.ok(await socket(`tcp::${port}`)(), 'prot::port')
-    t.ok(await socket(`tcp:${address}:${port}`)(), 'prot:host:port')
+    t.ok(await socket(`tcp:${host}:${port}`)(), 'prot:host:port')
     server.close()
     t.end()
   })

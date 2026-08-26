@@ -1,6 +1,6 @@
 import test from 'tape'
-import MultiError from '../src/MultiError'
-import retry from '../src/retry'
+import MultiError from '../src/MultiError.ts'
+import retry from '../src/retry.ts'
 
 interface FnCall {
   args: any[]

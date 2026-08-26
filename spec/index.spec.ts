@@ -1,6 +1,6 @@
-require('./file.spec')
-require('./http.spec')
-require('./socket.spec')
-require('./retry.spec')
-require('./udp.spec')
-require('./MultiError.spec')
+import './file.spec.ts'
+import './http.spec.ts'
+import './socket.spec.ts'
+import './retry.spec.ts'
+import './udp.spec.ts'
+import './MultiError.spec.ts'

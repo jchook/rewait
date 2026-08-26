@@ -8,6 +8,8 @@
     "strict": true,
     "types": ["node"],
     "esModuleInterop": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },

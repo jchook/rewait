@@ -1,14 +1,16 @@
-import type { CheckFunction } from './fn'
-import MultiError from './MultiError'
+import type { CheckFunction } from './fn.ts'
+import MultiError from './MultiError.ts'
 
 /**
  * Each retried function MUST be in one of three states.
  */
-export enum RetryState {
-  NOT_READY = 'NOT_READY',
-  READY = 'READY',
-  WORKING = 'WORKING',
-}
+export const RetryState = {
+  NOT_READY: 'NOT_READY',
+  READY: 'READY',
+  WORKING: 'WORKING',
+} as const
+
+export type RetryState = (typeof RetryState)[keyof typeof RetryState]
 
 export interface RetryOptions {
   interval: number

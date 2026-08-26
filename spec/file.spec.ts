@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import test from 'tape'
-import file from '../src/file'
+import file from '../src/file.ts'
 
 test('file() fails when the file does not exist', async t => {
   t.plan(2)
@@ -17,7 +17,7 @@ test('file() fails when the file does not exist', async t => {
 
 test('file() passes on a file that exists', async t => {
   t.plan(1)
-  const fpath = path.join(__dirname, 'file.spec.ts')
+  const fpath = path.join(import.meta.dirname, 'file.spec.ts')
   const result = await file(fpath)()
   t.ok(result instanceof fs.Stats, 'return value is file stats')
 })

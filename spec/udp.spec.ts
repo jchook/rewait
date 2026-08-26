@@ -1,6 +1,6 @@
 import dgram from 'node:dgram'
 import test from 'tape'
-import udp from '../src/udp'
+import udp from '../src/udp.ts'
 
 // Shit b/c UDP is connectionless there's no easy universal way to verify
 // that the service is "up"
@@ -30,6 +30,67 @@ test('socket() connects via UDP4', t => {
         server.close(() => {
           t.ok(true, 'server socket closed')
         })
+      })
+      .catch(err => t.notOk(err, 'should not error'))
+  })
+})
+
+test('udp() detects udp4 from a dotted-quad address', t => {
+  t.plan(1)
+  const server = dgram.createSocket('udp4')
+  server.bind(0, '127.0.0.1', () => {
+    const { port } = server.address()
+    udp(port, '127.0.0.1')()
+      .then(client => {
+        t.ok(client instanceof dgram.Socket, 'client connected via udp4')
+        server.close()
+      })
+      .catch(err => t.notOk(err, 'should not error'))
+  })
+})
+
+test('udp() detects udp6 from an address containing a colon', t => {
+  t.plan(1)
+  const server = dgram.createSocket('udp6')
+  server.bind(0, '::1', () => {
+    const { port } = server.address()
+    udp(port, '::1')()
+      .then(client => {
+        t.ok(client instanceof dgram.Socket, 'client connected via udp6')
+        server.close()
+      })
+      .catch(err => t.notOk(err, 'should not error'))
+  })
+})
+
+test('udp() falls back to udp4 for hostnames', t => {
+  t.plan(1)
+  const server = dgram.createSocket('udp4')
+  server.bind(0, '127.0.0.1', () => {
+    const { port } = server.address()
+    udp(port, 'localhost')()
+      .then(client => {
+        t.ok(client instanceof dgram.Socket, 'client connected via hostname')
+        server.close()
+      })
+      .catch(err => t.notOk(err, 'should not error'))
+  })
+})
+
+test('udp() tolerates checkOk closing the socket itself', t => {
+  t.plan(2)
+  const server = dgram.createSocket('udp4')
+  server.bind(0, '127.0.0.1', () => {
+    const { port } = server.address()
+    udp(port, '127.0.0.1', {
+      checkOk: client => {
+        client.close()
+        t.ok(true, 'checkOk closed the socket')
+      },
+    })()
+      .then(client => {
+        t.ok(client instanceof dgram.Socket, 'still resolves with the socket')
+        server.close()
       })
       .catch(err => t.notOk(err, 'should not error'))
   })

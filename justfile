@@ -39,9 +39,11 @@ format:
 lint:
   biome check .
 
-# Generate a test coverage report (needs a node runner for V8 coverage)
+# Generate a test coverage report (needs Node >= 23.6 for V8 coverage over
+# natively-run TypeScript -- transpilers like tsx inject interop helpers that
+# c8 counts as uncovered branches)
 coverage:
-  c8 --100 -n src tsx spec/index.spec.ts
+  c8 --100 -n src node spec/index.spec.ts
 
 # Run the tests
 test:

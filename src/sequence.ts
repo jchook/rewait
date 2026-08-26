@@ -1,5 +1,5 @@
-import type { CheckFunction } from './fn'
-import type { CheckResults } from './retry'
+import type { CheckFunction } from './fn.ts'
+import type { CheckResults } from './retry.ts'
 
 /**
  * Perform a set of checks in sequence instead of in parallel.

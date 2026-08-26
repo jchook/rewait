@@ -1,8 +1,7 @@
 export default class MultiError extends Error {
-  constructor(
-    message: string | undefined,
-    public errors: any[] = []
-  ) {
+  errors: any[]
+  constructor(message: string | undefined, errors: any[] = []) {
     super(message)
+    this.errors = errors
   }
 }
