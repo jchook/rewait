@@ -4,7 +4,7 @@ module.exports = {
   excludeExternals: true,
   excludePrivate: true,
   excludeProtected: true,
-  gitRevision: 'master',
+  gitRevision: 'main',
   hideBreadcrumbs: false,
   hideGenerator: true,
   out: 'docs',

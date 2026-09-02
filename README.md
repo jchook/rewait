@@ -3,8 +3,8 @@ Rewait
 
 ![Version 2.0.0](https://img.shields.io/badge/v-2.0.0-blue)
 ![License MIT](https://img.shields.io/badge/license-MIT-brightgreen)
-[![CI](https://github.com/jchook/rewait/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/jchook/rewait/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/jchook/rewait/badge.svg?branch=master)](https://coveralls.io/github/jchook/rewait?branch=master)
+[![CI](https://github.com/jchook/rewait/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jchook/rewait/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/jchook/rewait/badge.svg?branch=main)](https://coveralls.io/github/jchook/rewait?branch=main)
 
 A NodeJS library to wait for external resources to become available:
 
