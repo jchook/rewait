@@ -4,7 +4,7 @@ module.exports = {
   excludeExternals: true,
   excludePrivate: true,
   excludeProtected: true,
-  gitRevision: 'typescript',
+  gitRevision: 'master',
   hideBreadcrumbs: false,
   hideGenerator: true,
   out: 'docs',
