@@ -60,6 +60,14 @@
   },
   "author": "Wes Roberts",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jchook/rewait.git"
+  },
+  "homepage": "https://github.com/jchook/rewait#readme",
+  "bugs": {
+    "url": "https://github.com/jchook/rewait/issues"
+  },
   "engines": {
     "node": ">=14.18.0"
   },
