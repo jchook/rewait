@@ -5,18 +5,20 @@ import retry from '../src/retry.ts'
 interface FnCall {
   args: any[]
   at: Date
+  settledAt?: Date
 }
 
 function createChecker(numCalls = 3, lag = 10) {
   const calls: FnCall[] = []
   const check = (...args: any[]) => {
     return new Promise((resolve, reject) => {
-      calls.push({ args, at: new Date() })
-      if (calls.length >= numCalls) {
-        setTimeout(resolve, lag)
-      } else {
-        setTimeout(reject, lag)
-      }
+      const call: FnCall = { args, at: new Date() }
+      calls.push(call)
+      const settle = calls.length >= numCalls ? resolve : reject
+      setTimeout(() => {
+        call.settledAt = new Date()
+        settle()
+      }, lag)
     })
   }
   const reset = () => {
@@ -72,8 +74,9 @@ test('retry() staggered', async t => {
     t.ok(err, 'timeout')
     t.equal(slow.calls.length, 2, 'only called slow checker 2x in 200ms')
     t.equal(fast.calls.length, 5, 'called fast checker 5x in 200ms')
+    const slowSettledAt = slow.calls[0].settledAt?.getTime() ?? Infinity
     t.ok(
-      slow.calls[1].at.getTime() - slow.calls[0].at.getTime() >= 100,
+      slow.calls[1].at.getTime() >= slowSettledAt,
       'retry waited patiently to retry slow check'
     )
   }
