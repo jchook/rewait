@@ -118,7 +118,7 @@ function createDeadline(ms: unknown, onTimeout: () => void) {
   const promise = new Promise<never>((_resolve, reject) => {
     if (typeof ms === 'number') {
       timer = setTimeout(() => {
-        // Reject before tearing down: some runtimes emit 'end' on the response
+        // Reject before tearing down: Bun < 1.4 emits 'end' on the response
         // synchronously when the request is destroyed
         reject(new Error('HTTP response timeout'))
         onTimeout()
