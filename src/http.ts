@@ -198,15 +198,18 @@ function checkOk(res: http.IncomingMessage) {
 }
 
 function getUrlRequestOptions(url: URL): https.RequestOptions {
-  return {
+  const options: https.RequestOptions = {
     protocol: url.protocol,
     host: url.host,
     hostname: url.hostname,
     port: url.port,
     path: `${url.pathname}${url.search}`,
-    // This is already uri-encoded
-    auth: `${url.username}:${url.password}`,
   }
+  if (url.username || url.password) {
+    // This is already uri-encoded
+    options.auth = `${url.username}:${url.password}`
+  }
+  return options
 }
 
 /**

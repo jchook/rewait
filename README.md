@@ -45,6 +45,26 @@ Why use rewait?
 - Extensible
 
 
+Command line
+------------
+
+The `rewait` command covers the common cases without writing any code, which
+makes it handy in Docker entrypoints and health checks:
+
+```sh
+npm i -g rewait
+
+# Wait up to 90s for Postgres and an HTTP health endpoint, then start the app
+rewait -t 90s tcp://db:5432 http://api:8080/healthz --body-substring '"ok"' \
+  && exec node server.js
+```
+
+HTTP checks take curl-style options (`-X`, `-H`, `-d`, `-u`), TCP and UDP checks
+can `--send` a payload and match the reply, and `--once` fits Docker's
+`HEALTHCHECK`. See the [CLI documentation](./docs/cli.md) for everything it
+can do.
+
+
 Usage
 =====
 
@@ -96,6 +116,19 @@ retry(
 
 Or write your own `checkOk`. It receives the response as soon as the headers
 arrive, with the body still unread, so you can consume the stream yourself.
+
+`socket()` and `udp()` have a matching `checkSocketResponse()`, which can send a
+payload first and then wait for a reply that matches:
+
+```javascript
+const { retry, socket, checkSocketResponse } = require('rewait')
+
+retry(
+  socket('tcp://localhost:6379', {
+    checkOk: checkSocketResponse({ send: 'PING\r\n', bodyRegex: /^\+PONG/ }),
+  })
+)
+```
 
 
 Custom checks

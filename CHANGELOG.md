@@ -1,3 +1,26 @@
+# v2.2.0
+
+## ✨ Improvements
+
+- New `rewait` command line tool. Checks are URLs (`http://`, `https://`,
+  `tcp://`, `unix://`, `udp://`, `file://` or a plain path), HTTP checks take
+  curl-style options, socket checks can send a payload and match the reply, and
+  `--once` suits Docker `HEALTHCHECK`. See [docs/cli.md](./docs/cli.md), which
+  is the output of `rewait --help`.
+- New `checkSocketResponse()` builder for `socket()` and `udp()`: optionally
+  send a payload, then wait for a reply matching a substring, regular
+  expression, or exact value. Available from the main export and as
+  `rewait/checkSocketResponse`.
+- `MatchBodyOptions` (`bodySubstring`, `bodyRegex`, `bodyExact`, `encoding`)
+  is now a shared, exported type used by both response builders.
+
+## 🐛 Bug Fixes
+
+- `http()`'s `auth` option was silently overridden by the (empty) credentials
+  of the URL, so it never reached the server. It now works.
+- `socket()` no longer uses the deprecated `url.parse()`, which printed a
+  deprecation warning on recent Node versions.
+
 # v2.1.0
 
 ## ✨ Improvements

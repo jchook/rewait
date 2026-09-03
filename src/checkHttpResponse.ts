@@ -1,4 +1,5 @@
 import type http from 'node:http'
+import { hasBodyMatch, type MatchBodyOptions, matchBody } from './matchBody.ts'
 
 /**
  * Declarative response checks for use as the `checkOk` option of `http()`.
@@ -8,7 +9,7 @@ import type http from 'node:http'
  * accepted. Body checks are only applied once the status check passes, and
  * every body check given must pass.
  */
-export interface CheckHttpResponseOptions {
+export interface CheckHttpResponseOptions extends MatchBodyOptions {
   /**
    * Accept these exact status codes
    */
@@ -18,29 +19,7 @@ export interface CheckHttpResponseOptions {
    * Accept status codes in this inclusive [min, max] range
    */
   statusRange?: [number, number]
-
-  /**
-   * The body must equal this string exactly
-   */
-  bodyExact?: string
-
-  /**
-   * The body must match this regular expression
-   */
-  bodyRegex?: RegExp
-
-  /**
-   * The body must contain this substring
-   */
-  bodySubstring?: string
-
-  /**
-   * Encoding used to decode the body. Defaults to utf8.
-   */
-  encoding?: BufferEncoding
 }
-
-const BODY_PREVIEW_LENGTH = 100
 
 function describeStatus(opts: CheckHttpResponseOptions) {
   const parts: string[] = []
@@ -77,45 +56,6 @@ function checkStatus(code: number | undefined, opts: CheckHttpResponseOptions) {
   }
 }
 
-function preview(body: string) {
-  if (body.length <= BODY_PREVIEW_LENGTH) {
-    return JSON.stringify(body)
-  }
-  return `${JSON.stringify(body.slice(0, BODY_PREVIEW_LENGTH))}...`
-}
-
-function checkBody(body: string, opts: CheckHttpResponseOptions) {
-  if (opts.bodyExact !== undefined && body !== opts.bodyExact) {
-    throw new Error(
-      `Expected response body to equal ${JSON.stringify(
-        opts.bodyExact
-      )} but received ${preview(body)}`
-    )
-  }
-  if (opts.bodySubstring !== undefined && !body.includes(opts.bodySubstring)) {
-    throw new Error(
-      `Expected response body to contain ${JSON.stringify(
-        opts.bodySubstring
-      )} but received ${preview(body)}`
-    )
-  }
-  if (opts.bodyRegex !== undefined && !opts.bodyRegex.test(body)) {
-    throw new Error(
-      `Expected response body to match ${opts.bodyRegex} but received ${preview(
-        body
-      )}`
-    )
-  }
-}
-
-function needsBody(opts: CheckHttpResponseOptions) {
-  return (
-    opts.bodyExact !== undefined ||
-    opts.bodySubstring !== undefined ||
-    opts.bodyRegex !== undefined
-  )
-}
-
 /**
  * Read the entire response body as a string
  */
@@ -145,8 +85,8 @@ function readBody(res: http.IncomingMessage, encoding: BufferEncoding) {
 export default function checkHttpResponse(opts: CheckHttpResponseOptions = {}) {
   return async (res: http.IncomingMessage) => {
     checkStatus(res.statusCode, opts)
-    if (needsBody(opts)) {
-      checkBody(await readBody(res, opts.encoding || 'utf8'), opts)
+    if (hasBodyMatch(opts)) {
+      matchBody(await readBody(res, opts.encoding || 'utf8'), opts)
     }
   }
 }

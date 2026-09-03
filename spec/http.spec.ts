@@ -417,3 +417,20 @@ test('http() rejects when checkOk destroys the response', async t => {
   t.equal(async.message, 'Response closed before completion', 'async destroy')
   server.close()
 })
+
+test('http() auth option', async t => {
+  t.plan(1)
+  const server = http.createServer((req, res) => {
+    t.deepEqual(
+      getUsernamePassword(req),
+      { username: 'me', password: 'p@ss' },
+      'server received the auth option credentials'
+    )
+    res.end('42')
+  })
+  server.listen()
+  await checkHttp(`http://127.0.0.1:${getAddrInfo(server).port}/`, {
+    auth: { username: 'me', password: 'p@ss' },
+  })()
+  server.close()
+})

@@ -1,5 +1,10 @@
 import dgram from 'node:dgram'
 
+export {
+  type CheckSocketResponseOptions,
+  default as checkSocketResponse,
+} from './checkSocketResponse.ts'
+
 function getUdpType(host?: string) {
   if (!host || typeof host !== 'string') {
     return

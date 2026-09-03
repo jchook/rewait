@@ -2,6 +2,10 @@ export {
   type CheckHttpResponseOptions,
   default as checkHttpResponse,
 } from './checkHttpResponse.ts'
+export {
+  type CheckSocketResponseOptions,
+  default as checkSocketResponse,
+} from './checkSocketResponse.ts'
 export { type CheckFileOptions, default as file } from './file.ts'
 export type { CheckFunction } from './fn.ts'
 export {
@@ -9,6 +13,7 @@ export {
   type CheckHttpOptions,
   default as http,
 } from './http.ts'
+export type { MatchBodyOptions } from './matchBody.ts'
 export {
   type CheckResults,
   default as retry,
