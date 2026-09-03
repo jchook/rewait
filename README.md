@@ -1,7 +1,7 @@
 Rewait
 ======
 
-![Version 2.0.0](https://img.shields.io/badge/v-2.0.0-blue)
+[![npm version](https://img.shields.io/npm/v/rewait)](https://www.npmjs.com/package/rewait)
 ![License MIT](https://img.shields.io/badge/license-MIT-brightgreen)
 [![CI](https://github.com/jchook/rewait/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jchook/rewait/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/jchook/rewait/badge.svg?branch=main)](https://coveralls.io/github/jchook/rewait?branch=main)
