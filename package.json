@@ -1,6 +1,6 @@
 {
   "name": "rewait",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Wait for external resources to become available -- http, https, tcp, sockets, files, and custom functions.",
   "keywords": [
     "wait",
@@ -19,6 +19,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./checkHttpResponse": {
+      "types": "./dist/checkHttpResponse.d.ts",
+      "default": "./dist/checkHttpResponse.js"
     },
     "./file": {
       "types": "./dist/file.d.ts",

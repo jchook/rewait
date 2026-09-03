@@ -1,3 +1,18 @@
+# v2.1.0
+
+## ✨ Improvements
+
+- New `checkHttpResponse()` builder for declarative `http()` checks: accept
+  specific status codes or ranges, and match the body by substring, regular
+  expression, or exact value. Available from the main export and as
+  `rewait/checkHttpResponse`.
+- `http()` now calls `checkOk` as soon as the response headers arrive, with the
+  body still unread, so custom checks can inspect the body. Whatever the check
+  leaves unread is drained afterwards, so status-only checks behave as before.
+- `http()`'s `timeout` now also covers the time spent in `checkOk`.
+- `http()` now rejects when the server drops the connection before the response
+  body completes, instead of resolving with a truncated response.
+
 # v2.0.0
 
 See [MIGRATION.md](./MIGRATION.md) for a complete 1.x upgrade guide.
