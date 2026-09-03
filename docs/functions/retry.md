@@ -15,7 +15,7 @@ Wait for resources to become available, retrying at set invervals.
 Note that retry() will not retry a given async check function until it
 settles. If it settles faster than the interval, retry() will wait for
 the balance of the interval time before retrying. The interval defaults to
-250ms.
+250ms; 0 retries as soon as the check settles.
 
 The returned `Promise` only resolves once all supplied check functions pass.
 It returns the result of all the check functions, similar to `Promise.all()`.
@@ -58,7 +58,7 @@ Wait for resources to become available, retrying at set invervals.
 Note that retry() will not retry a given async check function until it
 settles. If it settles faster than the interval, retry() will wait for
 the balance of the interval time before retrying. The interval defaults to
-250ms.
+250ms; 0 retries as soon as the check settles.
 
 The returned `Promise` only resolves once all supplied check functions pass.
 It returns the result of all the check functions, similar to `Promise.all()`.

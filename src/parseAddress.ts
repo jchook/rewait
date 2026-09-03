@@ -11,58 +11,93 @@ const DEFAULT_PORTS: Record<string, number> = {
   'wss:': 443,
 }
 
-const EXPECTED = 'expected e.g. tcp://host:port, host:port or /path/to.sock'
-
-function invalid(address: string): Error {
-  return new Error(`Invalid socket address: ${address} (${EXPECTED})`)
+function invalid(address: string, hint: string): Error {
+  return new Error(`Invalid socket address: ${address} (${hint})`)
 }
 
-function parsePort(port: string, address: string): number {
-  const num = Number(port)
-  if (!Number.isInteger(num) || num < 0 || num > 65535) {
-    throw invalid(address)
+/**
+ * A URL pathname is percent-encoded; the filesystem wants the real bytes
+ */
+function decodePath(pathname: string, address: string): string {
+  try {
+    return decodeURIComponent(pathname)
+  } catch {
+    throw invalid(address, 'malformed percent-encoding in path')
   }
-  return num
+}
+
+/**
+ * Host and port from a URL's authority
+ */
+function authority(url: URL, address: string): net.SocketConnectOpts {
+  const port = url.port || DEFAULT_PORTS[url.protocol]
+  if (!port) {
+    throw invalid(
+      address,
+      'expected a port, e.g. tcp://host:port; for a relative socket path write ./path or unix:path'
+    )
+  }
+  const host = url.hostname
+  return {
+    port: Number(port),
+    host: host.startsWith('[') ? host.slice(1, -1) : host,
+  }
 }
 
 /**
  * Parse a string socket address into net.connect() options.
  *
- * Accepts URLs such as tcp://host:port, tcp://[::1]:port, http://host (using
- * the scheme's default port) and unix:///path/to.sock; the shorter host:port,
- * [::1]:port, tcp:host:port and tcp::port forms; and plain paths to IPC
- * sockets. Throws when the address is a URL that names neither a port nor a
- * path, or that cannot be parsed.
+ * - Anything that is not a URL is a path to an IPC socket: /tmp/x.sock,
+ *   ./x.sock, \\.\pipe\name
+ * - unix: URLs name a path: unix:///tmp/x.sock, unix:/tmp/x.sock, unix:x.sock
+ * - Any other scheme names a host and port: tcp://host:port, tcp://[::1]:port,
+ *   http://host (default port), plus the older tcp:host:port and tcp::port
+ *   forms
+ *
+ * Throws when the address cannot be parsed or names neither a port nor a
+ * path.
  */
 export default function parseAddress(address: string): net.SocketConnectOpts {
-  // host:port, [ipv6]:port, scheme:host:port, scheme::port
-  const hostPort = address.match(
-    /^(?:[a-z][a-z0-9+.-]*:(?!\/\/))?(?:\[([^\]]*)\]|([^:/[\]]*)):(\d+)$/i
-  )
-  if (hostPort) {
-    return {
-      port: parsePort(hostPort[3], address),
-      host: hostPort[1] || hostPort[2] || undefined,
-    }
-  }
   let url: URL
   try {
     url = new URL(address)
   } catch {
     if (!address || address.includes('://')) {
-      throw invalid(address)
+      throw invalid(address, 'not a valid URL')
     }
     return { path: address }
   }
-  const port = url.port || DEFAULT_PORTS[url.protocol]
-  if (port) {
-    return {
-      port: parsePort(String(port), address),
-      host: url.hostname.replace(/^\[(.*)\]$/, '$1'),
+
+  if (url.protocol === 'unix:') {
+    if (url.hostname) {
+      throw invalid(
+        address,
+        `unix:// must be followed by an absolute path, e.g. unix:///tmp/x.sock; for a relative path write unix:${url.hostname}${url.pathname}`
+      )
     }
+    if (!url.pathname) {
+      throw invalid(address, 'expected a path, e.g. unix:///tmp/x.sock')
+    }
+    return { path: decodePath(url.pathname, address) }
   }
-  if (url.pathname) {
-    return { path: url.pathname }
+
+  if (url.hostname) {
+    return authority(url, address)
   }
-  throw invalid(address)
+  if (url.pathname.startsWith('/')) {
+    // tcp:///tmp/x.sock
+    return { path: decodePath(url.pathname, address) }
+  }
+
+  // An opaque path such as tcp:host:port or tcp::port is an authority
+  const rest = url.pathname.startsWith(':')
+    ? `localhost${url.pathname}`
+    : url.pathname
+  let reparsed: URL
+  try {
+    reparsed = new URL(`//${rest}`, 'tcp://localhost')
+  } catch {
+    throw invalid(address, 'expected e.g. tcp://host:port')
+  }
+  return authority(reparsed, address)
 }

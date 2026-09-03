@@ -1,3 +1,22 @@
+# v2.2.1
+
+## ✨ Improvements
+
+- `socket()` string addresses are now parsed entirely by the WHATWG URL
+  parser. The scheme decides how the rest is read: `unix:` URLs name a path
+  (`unix:///tmp/x.sock`, `unix:/tmp/x.sock`, `unix:rel.sock`, colons and all),
+  any other scheme names a host and port (`tcp://host:port`, `tcp:host:port`,
+  `tcp::port`, `http://host`), and anything that is not a URL is a plain path.
+- Percent-encoded `unix:` and `tcp:///` paths are decoded, so socket paths
+  containing spaces work when given as a URL.
+- `unix://rel.sock` is rejected with a hint, since a URL puts `rel.sock` in the
+  host slot. Write `unix:rel.sock` or `./rel.sock`.
+
+## 🐛 Bug Fixes
+
+- The bare `host:port` form that 2.2.0 introduced is gone again. It was
+  ambiguous with relative socket paths containing a colon.
+
 # v2.2.0
 
 ## ✨ Improvements
