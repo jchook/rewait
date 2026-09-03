@@ -2,16 +2,17 @@
 
 ***
 
-[rewait](../README.md) / CheckHttpResponseOptions
+[rewait](../README.md) / CheckSocketResponseOptions
 
-# Interface: CheckHttpResponseOptions
+# Interface: CheckSocketResponseOptions
 
-Declarative response checks for use as the `checkOk` option of `http()`.
+Declarative checks for use as the `checkOk` option of `socket()` and
+`udp()`.
 
-A response is accepted when its status code matches `status` or falls
-within `statusRange`. When neither is given, any 2xx or 3xx status is
-accepted. Body checks are only applied once the status check passes, and
-every body check given must pass.
+`send` is written to the socket first, if given. When any body check is
+given, incoming data is accumulated until every check passes, at which
+point the check succeeds. If the socket closes or `timeout` elapses before
+that, the check fails.
 
 ## Extends
 
@@ -67,16 +68,17 @@ Encoding used to decode the body. Defaults to utf8.
 
 ***
 
-### status?
+### send?
 
-> `optional` **status?**: `number` \| `number`[]
+> `optional` **send?**: `string` \| `Buffer`\<`ArrayBufferLike`\>
 
-Accept these exact status codes
+Data to send once connected. Strings are encoded using `encoding`.
 
 ***
 
-### statusRange?
+### timeout?
 
-> `optional` **statusRange?**: \[`number`, `number`\]
+> `optional` **timeout?**: `number`
 
-Accept status codes in this inclusive [min, max] range
+How long to wait for a matching response, in milliseconds.
+Defaults to 5000.

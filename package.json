@@ -1,6 +1,6 @@
 {
   "name": "rewait",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Wait for external resources to become available -- http, https, tcp, sockets, files, and custom functions.",
   "keywords": [
     "wait",
@@ -11,10 +11,16 @@
     "resource",
     "database",
     "retry",
-    "online"
+    "online",
+    "cli",
+    "healthcheck",
+    "docker"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "rewait": "./bin/rewait.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -23,6 +29,10 @@
     "./checkHttpResponse": {
       "types": "./dist/checkHttpResponse.d.ts",
       "default": "./dist/checkHttpResponse.js"
+    },
+    "./checkSocketResponse": {
+      "types": "./dist/checkSocketResponse.d.ts",
+      "default": "./dist/checkSocketResponse.js"
     },
     "./file": {
       "types": "./dist/file.d.ts",
@@ -88,7 +98,7 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
-    "build": "tsc && node scripts/cjs-interop.js",
+    "build": "tsc && node scripts/cjs-interop.js && node scripts/cli-docs.js",
     "format": "biome format --write .",
     "lint": "biome check .",
     "prepublishOnly": "tsc && node scripts/cjs-interop.js",

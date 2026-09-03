@@ -2,7 +2,8 @@
 *
 
 # Except these
-!/dist/*
+!/bin/*
+!/dist/**
 !/package.json
 !/README.md
 !/MIGRATION.md

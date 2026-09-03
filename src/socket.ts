@@ -1,5 +1,10 @@
 import net from 'node:net'
-import url from 'node:url'
+import parseAddress from './parseAddress.ts'
+
+export {
+  type CheckSocketResponseOptions,
+  default as checkSocketResponse,
+} from './checkSocketResponse.ts'
 
 /**
  * Promisify net.connect()
@@ -17,17 +22,7 @@ function parseUrl(
   opts: number | string | net.SocketConnectOpts
 ): net.SocketConnectOpts {
   if (typeof opts === 'string') {
-    // TODO: deprecated
-    const parsed = url.parse(opts)
-    if (parsed.port) {
-      return {
-        port: parseInt(parsed.port, 10),
-        host: parsed.hostname || undefined,
-      }
-    }
-    if (parsed.pathname) {
-      return { path: parsed.pathname }
-    }
+    return parseAddress(opts)
   }
   if (opts && typeof opts === 'object') {
     return opts

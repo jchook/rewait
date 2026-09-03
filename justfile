@@ -18,9 +18,10 @@ build-js:
   tsc
   node scripts/cjs-interop.js
 
-# Compile the documentation
+# Compile the documentation (API docs via typedoc, CLI docs from --help)
 build-docs:
   typedoc
+  node scripts/cli-docs.js
 
 # Generate a new HTTPS certificate (for testing purposes)
 cert:

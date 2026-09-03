@@ -73,6 +73,19 @@ test('http() bail on infinite data', t => {
   })
 })
 
+test('http() timeout Infinity never fires', async t => {
+  const server = http.createServer((_req, res) => {
+    setTimeout(() => res.end('slow'), 20)
+  })
+  server.listen()
+  const res = await checkHttp(`http://localhost:${getAddrInfo(server).port}`, {
+    timeout: Infinity,
+  })()
+  t.equal(res.statusCode, 200)
+  server.close()
+  t.end()
+})
+
 test('http() timeout when server fails to send data', t => {
   t.plan(5)
 
@@ -415,5 +428,22 @@ test('http() rejects when checkOk destroys the response', async t => {
     })()
   )
   t.equal(async.message, 'Response closed before completion', 'async destroy')
+  server.close()
+})
+
+test('http() auth option', async t => {
+  t.plan(1)
+  const server = http.createServer((req, res) => {
+    t.deepEqual(
+      getUsernamePassword(req),
+      { username: 'me', password: 'p@ss' },
+      'server received the auth option credentials'
+    )
+    res.end('42')
+  })
+  server.listen()
+  await checkHttp(`http://127.0.0.1:${getAddrInfo(server).port}/`, {
+    auth: { username: 'me', password: 'p@ss' },
+  })()
   server.close()
 })
