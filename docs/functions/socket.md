@@ -16,8 +16,8 @@ a string address:
 - tcp://host:port, tcp://[::1]:port, or http://host (default port) for TCP
 - unix:///path/to.sock, unix:/path/to.sock, or a plain path for IPC sockets
 
-Since a URL's host part cannot hold a relative path, write unix:rel.sock
-or ./rel.sock rather than unix://rel.sock.
+For relative paths, write unix:rel.sock or ./rel.sock rather than
+unix://rel.sock.
 
 ## Parameters
 
