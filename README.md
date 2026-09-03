@@ -37,10 +37,9 @@ Why use rewait?
 - Simple
 - Easy to use, familiar
 - No dependencies
-- Tiny (~400 logical lines of code)
+- Full TypeScript type safety
 - 100% test coverage
 - Permissive FOSS license
-- Written in TypeScript
 - Used in major production evironments
 - Extensible
 
