@@ -1,6 +1,6 @@
 {
   "name": "rewait",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Wait for external resources to become available -- http, https, tcp, sockets, files, and custom functions.",
   "keywords": [
     "wait",

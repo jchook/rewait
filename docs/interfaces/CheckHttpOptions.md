@@ -169,4 +169,5 @@ Note: The `timeout` option is for connect time only.
 > **timeout**: `number`
 
 Total request time timeout, in milliseconds. Covers connecting, waiting for
-headers, running `checkOk`, and receiving the rest of the body.
+headers, running `checkOk`, and receiving the rest of the body. Defaults
+to 60000; pass Infinity to disable.

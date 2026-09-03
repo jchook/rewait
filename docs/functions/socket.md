@@ -10,9 +10,14 @@
 
 Check that a TCP or IPC socket is listening.
 
-You can specify a full url (e.g. tcp://localhost:3000), a port number,
-or an object of the form { host, port }. For IPC (Unix) sockets you can
-pass a path to the socket.
+Pass a port number, an object of the form { host, port } or { path }, or
+a string address:
+
+- tcp://host:port, tcp://[::1]:port, or http://host (default port) for TCP
+- unix:///path/to.sock, unix:/path/to.sock, or a plain path for IPC sockets
+
+Since a URL's host part cannot hold a relative path, write unix:rel.sock
+or ./rel.sock rather than unix://rel.sock.
 
 ## Parameters
 

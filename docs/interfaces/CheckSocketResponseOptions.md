@@ -81,4 +81,4 @@ Data to send once connected. Strings are encoded using `encoding`.
 > `optional` **timeout?**: `number`
 
 How long to wait for a matching response, in milliseconds.
-Defaults to 5000.
+Defaults to 5000. Pass Infinity to wait until the socket closes.
