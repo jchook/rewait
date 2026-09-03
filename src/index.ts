@@ -1,3 +1,7 @@
+export {
+  type CheckHttpResponseOptions,
+  default as checkHttpResponse,
+} from './checkHttpResponse.ts'
 export { type CheckFileOptions, default as file } from './file.ts'
 export type { CheckFunction } from './fn.ts'
 export {

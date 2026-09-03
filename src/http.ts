@@ -1,6 +1,11 @@
 import http from 'node:http'
 import https from 'node:https'
 
+export {
+  type CheckHttpResponseOptions,
+  default as checkHttpResponse,
+} from './checkHttpResponse.ts'
+
 const DEFAULT_RESPONSE_TIMEOUT = 60000 // ms
 const encode = encodeURIComponent
 const defaultBaseUrl = new URL('http://localhost/')
@@ -24,8 +29,9 @@ export interface CheckHttpOptions {
   auth?: AuthCredentials
 
   /**
-   * Instantly destroy the request as soon as it connects?
-   * This can save time when the response is large or takes time to send.
+   * Destroy the request as soon as `checkOk` has run, without waiting for the
+   * rest of the response body. This can save time when the response is large
+   * or takes time to send.
    */
   bail?: boolean
 
@@ -35,7 +41,11 @@ export interface CheckHttpOptions {
   baseUrl?: URL
 
   /**
-   * Check whether a response is OK
+   * Check whether a response is OK. Throw an Error to indicate a not-ok state.
+   *
+   * Called as soon as response headers arrive, with the body still unread, so
+   * the check may consume the stream, e.g. via {@link checkHttpResponse}.
+   * Whatever is left of the body is drained after the check returns.
    */
   checkOk: (
     res: http.IncomingMessage,
@@ -53,9 +63,9 @@ export interface CheckHttpOptions {
   data?: any
 
   /**
-   * Whether to put the response stream into "flowing mode" automatically. If
-   * you set this to false, you may need to call res.resume() manually in the
-   * request's response callback.
+   * Whether to drain the response stream automatically after `checkOk` runs.
+   * If you set this to false you must consume the stream yourself, e.g. in
+   * `checkOk` or `onResponse`, or the check will hang until it times out.
    */
   flowingMode?: boolean
 
@@ -81,7 +91,8 @@ export interface CheckHttpOptions {
   requestOptions: https.RequestOptions
 
   /**
-   * Total request time timeout, in milliseconds
+   * Total request time timeout, in milliseconds. Covers connecting, waiting for
+   * headers, running `checkOk`, and receiving the rest of the body.
    */
   timeout: number
 }
@@ -99,91 +110,83 @@ export function encodeHttpAuth(username: string, password: string): string {
 }
 
 /**
- * Promisify http.request()
+ * A deadline that rejects after `ms` milliseconds. When `ms` is not a number
+ * the deadline never fires.
  */
-function httpRequest(checkOptions: CheckHttpOptions) {
-  const options = checkOptions.requestOptions
-  return new Promise<http.IncomingMessage>((resolve, reject) => {
-    const httpModule = options.protocol === 'http:' ? http : https
-    const req = httpModule.request(options)
-    let responseTimeout: NodeJS.Timeout | undefined
-
-    // Timeout normally only applies to connections
-    // If you want to simply connect and get a status code, use `{ bail: true }`
-    if (typeof checkOptions.timeout === 'number') {
-      responseTimeout = setTimeout(() => {
-        req.destroy()
+function createDeadline(ms: unknown, onTimeout: () => void) {
+  let timer: NodeJS.Timeout | undefined
+  const promise = new Promise<never>((_resolve, reject) => {
+    if (typeof ms === 'number') {
+      timer = setTimeout(() => {
+        // Reject before tearing down: Bun < 1.4 emits 'end' on the response
+        // synchronously when the request is destroyed
         reject(new Error('HTTP response timeout'))
-      }, checkOptions.timeout)
+        onTimeout()
+      }, ms)
     }
-
-    // Fail fast on errors
-    req.on('error', err => {
-      if (responseTimeout) {
-        clearTimeout(responseTimeout)
+  })
+  return {
+    promise,
+    clear: () => {
+      if (timer) {
+        clearTimeout(timer)
       }
-      if (typeof checkOptions.onError === 'function') {
-        checkOptions.onError(err, checkOptions)
+    },
+  }
+}
+
+/**
+ * Send the request and resolve as soon as response headers arrive.
+ */
+function awaitResponse(req: http.ClientRequest, opts: CheckHttpOptions) {
+  return new Promise<http.IncomingMessage>((resolve, reject) => {
+    req.on('error', err => {
+      if (typeof opts.onError === 'function') {
+        opts.onError(err, opts)
       }
       reject(err)
-      req.destroy()
     })
 
-    // Connection timeouts
     req.on('timeout', () => {
-      if (responseTimeout) {
-        clearTimeout(responseTimeout)
-      }
       req.destroy()
       reject(new Error('Connection timeout'))
     })
 
-    // User callback to add event handlers or store a reference to req
-    if (checkOptions.onRequest) {
-      checkOptions.onRequest(req, checkOptions)
+    if (opts.onRequest) {
+      opts.onRequest(req, opts)
     }
 
-    // Response received -- I *think* this fires at the first TCP data packet
     req.on('response', res => {
-      if (checkOptions.onResponse) {
-        checkOptions.onResponse(res, checkOptions)
+      if (opts.onResponse) {
+        opts.onResponse(res, opts)
       }
-
-      // Bail as early as possible?
-      if (checkOptions.bail) {
-        if (responseTimeout) {
-          clearTimeout(responseTimeout)
-        }
-        resolve(res)
-        res.destroy()
-        req.destroy()
-        return
-      }
-
-      // Switch on "flowing mode" by default so the response is downloaded,
-      // otherwise the request may never complete.
-      if (checkOptions.flowingMode !== false) {
-        res.resume()
-      }
-
-      // Once all data is received, resolve
-      res.on('end', () => {
-        if (responseTimeout) {
-          clearTimeout(responseTimeout)
-        }
-        resolve(res)
-        res.destroy()
-        req.destroy()
-      })
+      resolve(res)
     })
 
-    // Write data?
-    if (checkOptions.data) {
-      req.write(checkOptions.data)
+    if (opts.data) {
+      req.write(opts.data)
     }
 
-    // Close the outbound pipe
     req.end()
+  })
+}
+
+/**
+ * Resolve once the response body has been fully received, or reject if the
+ * connection drops first.
+ */
+function awaitEnd(res: http.IncomingMessage) {
+  return new Promise<void>((resolve, reject) => {
+    const closedEarly = () => new Error('Response closed before completion')
+    if (res.readableEnded) {
+      resolve()
+    } else if (res.destroyed) {
+      reject(closedEarly())
+    } else {
+      res.once('end', resolve)
+      res.once('error', reject)
+      res.once('close', () => reject(closedEarly()))
+    }
   })
 }
 
@@ -240,10 +243,31 @@ export default function checkHttp(
       ...userOptions.requestOptions,
     },
   }
+  const httpModule = options.requestOptions.protocol === 'http:' ? http : https
   const check = async () => {
-    const res = await httpRequest(options)
-    await options.checkOk(res, options)
-    return res
+    const req = httpModule.request(options.requestOptions)
+    const deadline = createDeadline(options.timeout, () => req.destroy())
+    try {
+      const res = await Promise.race([
+        deadline.promise,
+        awaitResponse(req, options),
+      ])
+      try {
+        await Promise.race([deadline.promise, options.checkOk(res, options)])
+        if (!options.bail) {
+          if (options.flowingMode !== false) {
+            res.resume()
+          }
+          await Promise.race([deadline.promise, awaitEnd(res)])
+        }
+      } finally {
+        res.destroy()
+      }
+      return res
+    } finally {
+      deadline.clear()
+      req.destroy()
+    }
   }
   return check
 }

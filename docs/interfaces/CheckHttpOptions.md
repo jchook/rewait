@@ -23,8 +23,9 @@ requestOptions.
 
 > `optional` **bail?**: `boolean`
 
-Instantly destroy the request as soon as it connects?
-This can save time when the response is large or takes time to send.
+Destroy the request as soon as `checkOk` has run, without waiting for the
+rest of the response body. This can save time when the response is large
+or takes time to send.
 
 ***
 
@@ -40,7 +41,11 @@ The "base URL" to use when constructing the URL (2nd arg to new URL())
 
 > **checkOk**: (`res`, `opts`) => `any`
 
-Check whether a response is OK
+Check whether a response is OK. Throw an Error to indicate a not-ok state.
+
+Called as soon as response headers arrive, with the body still unread, so
+the check may consume the stream, e.g. via [checkHttpResponse](../functions/checkHttpResponse.md).
+Whatever is left of the body is drained after the check returns.
 
 #### Parameters
 
@@ -78,9 +83,9 @@ Data to write to the HTTP(S) request stream
 
 > `optional` **flowingMode?**: `boolean`
 
-Whether to put the response stream into "flowing mode" automatically. If
-you set this to false, you may need to call res.resume() manually in the
-request's response callback.
+Whether to drain the response stream automatically after `checkOk` runs.
+If you set this to false you must consume the stream yourself, e.g. in
+`checkOk` or `onResponse`, or the check will hang until it times out.
 
 ***
 
@@ -163,4 +168,5 @@ Note: The `timeout` option is for connect time only.
 
 > **timeout**: `number`
 
-Total request time timeout, in milliseconds
+Total request time timeout, in milliseconds. Covers connecting, waiting for
+headers, running `checkOk`, and receiving the rest of the body.

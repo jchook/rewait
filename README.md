@@ -75,6 +75,29 @@ retry(
 ```
 
 
+Checking the response
+---------------------
+
+By default `http()` accepts any 2xx or 3xx response. Use `checkHttpResponse()`
+to be more specific about the status code, or to inspect the body.
+
+```javascript
+const { retry, http, checkHttpResponse } = require('rewait')
+
+retry(
+  http('http://localhost:9200/_cluster/health', {
+    checkOk: checkHttpResponse({
+      status: 200,
+      bodyRegex: /"status":"(green|yellow)"/,
+    }),
+  })
+)
+```
+
+Or write your own `checkOk`. It receives the response as soon as the headers
+arrive, with the body still unread, so you can consume the stream yourself.
+
+
 Custom checks
 -------------
 

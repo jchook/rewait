@@ -269,3 +269,151 @@ test('getForwardedRequestOptions()', t => {
   })
   t.end()
 })
+
+async function rejection(promise: Promise<unknown>): Promise<Error> {
+  try {
+    await promise
+  } catch (err) {
+    return err as Error
+  }
+  throw new Error('Expected promise to reject')
+}
+
+test('http() checkOk receives the live response stream', async t => {
+  t.plan(3)
+  const server = http.createServer((_req, res) => {
+    res.end('hello')
+  })
+  server.listen()
+  const res = await checkHttp(`http://127.0.0.1:${getAddrInfo(server).port}/`, {
+    checkOk: res =>
+      new Promise<void>(resolve => {
+        t.notOk(res.readableEnded, 'body not yet consumed')
+        let body = ''
+        res.on('data', chunk => {
+          body += chunk
+        })
+        res.on('end', () => {
+          t.equal(body, 'hello', 'checkOk read the body')
+          resolve()
+        })
+      }),
+  })()
+  t.ok(res.readableEnded, 'stream was ended')
+  server.close()
+})
+
+test('http() rejects when checkOk throws', async t => {
+  t.plan(1)
+  const server = http.createServer((_req, res) => {
+    res.end('42')
+  })
+  server.listen()
+  const err = await rejection(
+    checkHttp(`http://127.0.0.1:${getAddrInfo(server).port}/`, {
+      checkOk: () => {
+        throw new Error('not ready')
+      },
+    })()
+  )
+  t.equal(err.message, 'not ready', 'error propagated')
+  server.close()
+})
+
+test('http() timeout covers checkOk', async t => {
+  t.plan(1)
+  const server = http.createServer((_req, res) => {
+    res.end('42')
+  })
+  server.listen()
+  const err = await rejection(
+    checkHttp(`http://127.0.0.1:${getAddrInfo(server).port}/`, {
+      timeout: 100,
+      checkOk: () => new Promise(() => {}), // never settles
+    })()
+  )
+  t.equal(err.message, 'HTTP response timeout')
+  server.close()
+})
+
+test('http() timeout covers the response body', async t => {
+  t.plan(1)
+  let pending: http.ServerResponse | undefined
+  const server = http.createServer((_req, res) => {
+    pending = res
+    res.write('partial') // never ends
+  })
+  server.listen()
+  const err = await rejection(
+    checkHttp(`http://127.0.0.1:${getAddrInfo(server).port}/`, {
+      timeout: 100,
+    })()
+  )
+  t.equal(err.message, 'HTTP response timeout')
+  pending?.destroy()
+  server.close()
+})
+
+test('http() no timeout when timeout is not a number', async t => {
+  t.plan(1)
+  const server = http.createServer((_req, res) => {
+    res.end('42')
+  })
+  server.listen()
+  await checkHttp(`http://127.0.0.1:${getAddrInfo(server).port}/`, {
+    timeout: undefined,
+  })()
+  t.pass('resolved without a deadline')
+  server.close()
+})
+
+test('http() flowingMode false requires manual consumption', async t => {
+  t.plan(1)
+  const server = http.createServer((_req, res) => {
+    res.end('42')
+  })
+  server.listen()
+  await checkHttp(`http://127.0.0.1:${getAddrInfo(server).port}/`, {
+    flowingMode: false,
+    onResponse: res => res.resume(),
+  })()
+  t.pass('resolved once the manually-resumed stream ended')
+  server.close()
+})
+
+test('http() rejects when the server drops the connection mid-body', async t => {
+  t.plan(1)
+  const server = http.createServer((_req, res) => {
+    res.write('partial')
+    setTimeout(() => res.socket?.destroy(), 20)
+  })
+  server.listen()
+  const err = await rejection(
+    checkHttp(`http://127.0.0.1:${getAddrInfo(server).port}/`)()
+  )
+  t.ok(err, `rejected: ${err.message}`)
+  server.close()
+})
+
+test('http() rejects when checkOk destroys the response', async t => {
+  t.plan(2)
+  const server = http.createServer((_req, res) => {
+    res.write('partial')
+    setTimeout(() => res.end(), 50)
+  })
+  server.listen()
+  const url = `http://127.0.0.1:${getAddrInfo(server).port}/`
+  const sync = await rejection(
+    checkHttp(url, { checkOk: res => res.destroy() })()
+  )
+  t.equal(sync.message, 'Response closed before completion', 'sync destroy')
+  const async = await rejection(
+    checkHttp(url, {
+      checkOk: res => {
+        setTimeout(() => res.destroy(), 10)
+      },
+    })()
+  )
+  t.equal(async.message, 'Response closed before completion', 'async destroy')
+  server.close()
+})
