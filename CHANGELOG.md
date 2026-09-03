@@ -13,6 +13,15 @@
   `rewait/checkSocketResponse`.
 - `MatchBodyOptions` (`bodySubstring`, `bodyRegex`, `bodyExact`, `encoding`)
   is now a shared, exported type used by both response builders.
+- `socket()` accepts `host:port` and `[::1]:port` addresses, and `http://host`
+  or `https://host` now imply ports 80 and 443. Addresses that name neither a
+  port nor a path, or that are not valid URLs, throw immediately instead of
+  being retried as nonexistent IPC socket paths.
+- `retry()` with `interval: 0` retries as soon as a check settles. Previously
+  a failing check was only attempted once.
+- `http()` accepts `timeout: Infinity` to disable its deadline, and
+  `checkSocketResponse()` accepts `timeout: Infinity` to wait until the socket
+  closes.
 
 ## 🐛 Bug Fixes
 
@@ -20,6 +29,10 @@
   of the URL, so it never reached the server. It now works.
 - `socket()` no longer uses the deprecated `url.parse()`, which printed a
   deprecation warning on recent Node versions.
+- `bodyRegex` with a `g` or `y` flag no longer alternates between passing and
+  failing on retries, since `lastIndex` is reset before every test.
+- `checkSocketResponse()` decodes the reply across chunk boundaries, so a
+  multibyte character split between two reads no longer corrupts the body.
 
 # v2.1.0
 

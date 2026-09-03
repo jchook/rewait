@@ -76,7 +76,8 @@ export async function run(argv: string[], io: RunIO): Promise<number> {
 
   const { quiet, verbose, once, sequential } = parsed.global
   const start = Date.now()
-  const outcome = new Map<string, Error | 'ok'>()
+  // Indexed like `built`: labels are not unique
+  const outcome: (Error | 'ok' | undefined)[] = built.map(() => undefined)
 
   const log = (message: string) => {
     if (verbose) {
@@ -85,16 +86,25 @@ export async function run(argv: string[], io: RunIO): Promise<number> {
     }
   }
 
-  const checks = built.map(({ label, check }) => async () => {
-    try {
-      const result = await check()
-      outcome.set(label, 'ok')
-      log(`${label}: ok`)
-      return result
-    } catch (err) {
-      outcome.set(label, err as Error)
-      log(`${label}: ${describeError(err)}`)
-      throw err
+  const checks = built.map(({ label, check }, idx) => {
+    // Remember a pass so --sequential does not re-run earlier checks on
+    // every attempt
+    let passed: { result: unknown } | undefined
+    return async () => {
+      if (passed) {
+        return passed.result
+      }
+      try {
+        const result = await check()
+        passed = { result }
+        outcome[idx] = 'ok'
+        log(`${label}: ok`)
+        return result
+      } catch (err) {
+        outcome[idx] = err as Error
+        log(`${label}: ${describeError(err)}`)
+        throw err
+      }
     }
   })
 
@@ -103,14 +113,14 @@ export async function run(argv: string[], io: RunIO): Promise<number> {
       return
     }
     const lines = [`rewait: ${headline}`]
-    for (const { label } of built) {
-      const result = outcome.get(label)
+    built.forEach(({ label }, idx) => {
+      const result = outcome[idx]
       if (result === undefined) {
         lines.push(`  ${label}: not attempted`)
       } else if (result !== 'ok') {
         lines.push(`  ${label}: ${describeError(result)}`)
       }
-    }
+    })
     io.stderr(`${lines.join('\n')}\n`)
   }
 
@@ -121,7 +131,7 @@ export async function run(argv: string[], io: RunIO): Promise<number> {
     const failed = results.filter(r => r.status === 'rejected').length
     if (failed > 0) {
       report(
-        `${[...outcome.values()].filter(r => r !== 'ok').length} of ${built.length} checks failed`
+        `${outcome.filter(r => r instanceof Error).length} of ${built.length} checks failed`
       )
       return 1
     }

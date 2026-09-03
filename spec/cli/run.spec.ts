@@ -251,10 +251,53 @@ test('rewait --once', async t => {
   t.end()
 })
 
+test('rewait reports each check even when targets repeat', async t => {
+  const failed = await exec([
+    '--once',
+    '/etc/hostname',
+    '--min-size',
+    '99999999',
+    '/etc/hostname',
+  ])
+  t.equal(failed.code, 1)
+  t.match(
+    failed.stderr,
+    /^rewait: 1 of 2 checks failed\n {2}\/etc\/hostname: Expected a file of at least 99999999 bytes/
+  )
+  t.equal(failed.stderr.split('\n').length, 3, 'one line per failure')
+  t.end()
+})
+
+test('rewait --interval 0 keeps retrying', async t => {
+  let attempts = 0
+  const server = http.createServer((_req, res) => {
+    attempts++
+    res.statusCode = attempts < 3 ? 503 : 200
+    res.end()
+  })
+  server.listen()
+  const ok = await exec([
+    '-i',
+    '0',
+    '-t',
+    '5s',
+    `http://127.0.0.1:${getAddrInfo(server).port}/`,
+  ])
+  t.equal(ok.code, 0)
+  t.equal(attempts, 3, 'retried without an interval')
+  server.close()
+  t.end()
+})
+
 test('rewait --sequential', async t => {
   const order: string[] = []
+  let flaky = 0
   const server = http.createServer((req, res) => {
     order.push(req.url || '')
+    if (req.url === '/flaky') {
+      flaky++
+      res.statusCode = flaky < 2 ? 503 : 200
+    }
     res.end()
   })
   server.listen()
@@ -262,6 +305,23 @@ test('rewait --sequential', async t => {
   const ok = await exec(['--sequential', `${base}/1`, `${base}/2`])
   t.equal(ok.code, 0)
   t.deepEqual(order, ['/1', '/2'], 'ran in order')
+  order.length = 0
+  const retried = await exec([
+    '--sequential',
+    '-i',
+    '10',
+    `${base}/1`,
+    `${base}/flaky`,
+    '--status',
+    '200',
+  ])
+  t.equal(retried.code, 0)
+  t.deepEqual(
+    order,
+    ['/1', '/flaky', '/flaky'],
+    'a passed check is not re-run while the next one retries'
+  )
+  t.equal(flaky, 2)
   const failed = await exec([
     '--sequential',
     '--once',

@@ -1,4 +1,5 @@
 import net from 'node:net'
+import parseAddress from './parseAddress.ts'
 
 export {
   type CheckSocketResponseOptions,
@@ -17,47 +18,11 @@ function netConnect(options: net.SocketConnectOpts) {
   })
 }
 
-/**
- * Parse a string address. Accepts URLs such as tcp://host:port,
- * tcp://[::1]:port and unix:///path/to.sock, the older tcp:host:port and
- * tcp::port forms, and plain paths to IPC sockets. Returns undefined when the
- * string is a URL that names neither a port nor a path.
- */
-function parseAddress(address: string): net.SocketConnectOpts | undefined {
-  const legacy = address.match(
-    /^[a-z][a-z0-9+.-]*:(?!\/\/)(?:\[([^\]]*)\]|([^:/]*)):(\d+)$/i
-  )
-  if (legacy) {
-    return {
-      port: parseInt(legacy[3], 10),
-      host: legacy[1] || legacy[2] || undefined,
-    }
-  }
-  let url: URL
-  try {
-    url = new URL(address)
-  } catch {
-    return { path: address }
-  }
-  if (url.port) {
-    return {
-      port: parseInt(url.port, 10),
-      host: url.hostname.replace(/^\[(.*)\]$/, '$1'),
-    }
-  }
-  if (url.pathname) {
-    return { path: url.pathname }
-  }
-}
-
 function parseUrl(
   opts: number | string | net.SocketConnectOpts
 ): net.SocketConnectOpts {
   if (typeof opts === 'string') {
-    const parsed = parseAddress(opts)
-    if (parsed) {
-      return parsed
-    }
+    return parseAddress(opts)
   }
   if (opts && typeof opts === 'object') {
     return opts

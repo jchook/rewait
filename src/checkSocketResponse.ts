@@ -1,5 +1,6 @@
 import type dgram from 'node:dgram'
 import type net from 'node:net'
+import { StringDecoder } from 'node:string_decoder'
 import {
   bodyMismatch,
   hasBodyMatch,
@@ -25,7 +26,7 @@ export interface CheckSocketResponseOptions extends MatchBodyOptions {
 
   /**
    * How long to wait for a matching response, in milliseconds.
-   * Defaults to 5000.
+   * Defaults to 5000. Pass Infinity to wait until the socket closes.
    */
   timeout?: number
 }
@@ -75,6 +76,8 @@ export default function checkSocketResponse(
       }
 
       let body = ''
+      // Decode across chunk boundaries so split multibyte characters survive
+      const decoder = new StringDecoder(encoding)
       const dataEvent = isDgram(socket) ? 'message' : 'data'
       const cleanup = () => {
         clearTimeout(timer)
@@ -87,7 +90,7 @@ export default function checkSocketResponse(
         reject(new Error(message))
       }
       const onData = (chunk: Buffer) => {
-        body += chunk.toString(encoding)
+        body += decoder.write(chunk)
         if (!bodyMismatch(body, opts)) {
           cleanup()
           resolve()
@@ -102,14 +105,17 @@ export default function checkSocketResponse(
         cleanup()
         reject(err)
       }
-      const timer = setTimeout(() => {
-        fail(
-          `Timed out after ${timeout}ms waiting for a matching response: ${bodyMismatch(
-            body,
-            opts
-          )}`
-        )
-      }, timeout)
+      let timer: NodeJS.Timeout | undefined
+      if (Number.isFinite(timeout)) {
+        timer = setTimeout(() => {
+          fail(
+            `Timed out after ${timeout}ms waiting for a matching response: ${bodyMismatch(
+              body,
+              opts
+            )}`
+          )
+        }, timeout)
+      }
 
       socket.on(dataEvent, onData)
       socket.once('close', onClose)

@@ -50,6 +50,38 @@ test('checkSocketResponse() accumulates chunks until the body matches', async t 
   t.end()
 })
 
+test('checkSocketResponse() decodes multibyte characters split across chunks', async t => {
+  const bytes = Buffer.from('café')
+  const { server, port } = tcpServer((_data, sock) => {
+    sock.write(bytes.subarray(0, 4))
+    setTimeout(() => sock.write(bytes.subarray(4)), 20)
+  })
+  await socket(`tcp://127.0.0.1:${port}`, {
+    checkOk: checkSocketResponse({ send: 'x', bodyExact: 'café' }),
+  })()
+  t.pass('matched a character split across two chunks')
+  server.close()
+  t.end()
+})
+
+test('checkSocketResponse() with timeout Infinity waits for the socket', async t => {
+  const { server, port } = tcpServer((_data, sock) => {
+    setTimeout(() => sock.end('nope'), 20)
+  })
+  const err = await rejection(
+    socket(`tcp://127.0.0.1:${port}`, {
+      checkOk: checkSocketResponse({
+        send: 'x',
+        bodySubstring: 'yes',
+        timeout: Infinity,
+      }),
+    })()
+  )
+  t.match(err.message, /^Socket closed before a matching response/)
+  server.close()
+  t.end()
+})
+
 test('checkSocketResponse() resolves immediately without body checks', async t => {
   let received = ''
   const { server, port } = tcpServer(data => {

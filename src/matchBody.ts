@@ -62,6 +62,10 @@ export function bodyMismatch(
       opts.bodySubstring
     )} but received ${preview(body)}`
   }
+  if (opts.bodyRegex !== undefined) {
+    // A g or y flag makes test() stateful; every call must start from 0
+    opts.bodyRegex.lastIndex = 0
+  }
   if (opts.bodyRegex !== undefined && !opts.bodyRegex.test(body)) {
     return `Expected response body to match ${opts.bodyRegex} but received ${preview(
       body

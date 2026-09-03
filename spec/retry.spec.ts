@@ -62,6 +62,13 @@ test('retry() interval', async t => {
   }
 })
 
+test('retry() interval 0 retries as soon as the check settles', async t => {
+  const checker = createChecker(3, 5)
+  await retry(checker.check, { interval: 0, timeout: 1000 })
+  t.equal(checker.calls.length, 3, 'retried until it passed')
+  t.end()
+})
+
 test('retry() staggered', async t => {
   const slow = createChecker(5, 100)
   const fast = createChecker(5, 10)

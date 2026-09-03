@@ -62,7 +62,7 @@ export const flags: FlagSpec[] = [
     arg: 'duration',
     scopes: ['global'],
     group: 'Options',
-    help: 'Minimum time between attempts of a check. Default: 250ms',
+    help: 'Minimum time between attempts of a check. 0 retries as soon as it fails. Default: 250ms',
   },
   {
     name: 'once',
@@ -158,14 +158,14 @@ export const flags: FlagSpec[] = [
     arg: 'duration',
     scopes: ['http'],
     group: 'HTTP options',
-    help: 'Fail an attempt if the connection is not established in time',
+    help: 'Fail an attempt if the connection is not established in time. 0 disables',
   },
   {
     name: 'max-time',
     arg: 'duration',
     scopes: ['http'],
     group: 'HTTP options',
-    help: 'Fail an attempt if the whole response is not received in time. Default: 60s',
+    help: 'Fail an attempt if the whole response is not received in time. 0 disables. Default: 60s',
   },
   {
     name: 'bail',
@@ -201,7 +201,7 @@ export const flags: FlagSpec[] = [
     arg: 'duration',
     scopes: ['socket', 'udp'],
     group: 'TCP, Unix socket and UDP options',
-    help: 'Fail an attempt if no matching response arrives in time. Default: 5s',
+    help: 'Fail an attempt if no matching response arrives in time. 0 waits until the socket closes. Default: 5s',
   },
 
   // Body

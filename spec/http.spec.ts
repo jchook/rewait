@@ -73,6 +73,19 @@ test('http() bail on infinite data', t => {
   })
 })
 
+test('http() timeout Infinity never fires', async t => {
+  const server = http.createServer((_req, res) => {
+    setTimeout(() => res.end('slow'), 20)
+  })
+  server.listen()
+  const res = await checkHttp(`http://localhost:${getAddrInfo(server).port}`, {
+    timeout: Infinity,
+  })()
+  t.equal(res.statusCode, 200)
+  server.close()
+  t.end()
+})
+
 test('http() timeout when server fails to send data', t => {
   t.plan(5)
 

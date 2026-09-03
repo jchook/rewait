@@ -44,7 +44,7 @@ const defaultOptions: RetryOptions = {
  * Note that retry() will not retry a given async check function until it
  * settles. If it settles faster than the interval, retry() will wait for
  * the balance of the interval time before retrying. The interval defaults to
- * 250ms.
+ * 250ms; 0 retries as soon as the check settles.
  *
  * The returned `Promise` only resolves once all supplied check functions pass.
  * It returns the result of all the check functions, similar to `Promise.all()`.
@@ -107,9 +107,9 @@ export default async function retry(
 
       // Wait until ready or interval
       new Promise<void>((resolve, reject) => {
-        if (opts.interval) {
-          setTimeout(resolve, opts.interval)
-        }
+        // Always a timer, even at 0: a check that fails synchronously must
+        // yield to the event loop so the timeout can fire
+        setTimeout(resolve, opts.interval)
 
         // Trigger any NOT_READY checks
         Promise.allSettled(

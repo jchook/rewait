@@ -55,6 +55,8 @@ test('socket() connects with various URLs', t => {
     t.ok(await socket(`tcp:127.0.0.1:${port}`)(), 'prot:ipv4:port')
     t.ok(await socket(`tcp://${host}:${port}`)(), 'prot://host:port')
     t.ok(await socket(`tcp://127.0.0.1:${port}`)(), 'prot://ipv4:port')
+    t.ok(await socket(`${host}:${port}`)(), 'host:port')
+    t.ok(await socket(`http://${host}:${port}`)(), 'http://host:port')
     server.close()
     t.end()
   })

@@ -92,7 +92,8 @@ export interface CheckHttpOptions {
 
   /**
    * Total request time timeout, in milliseconds. Covers connecting, waiting for
-   * headers, running `checkOk`, and receiving the rest of the body.
+   * headers, running `checkOk`, and receiving the rest of the body. Defaults
+   * to 60000; pass Infinity to disable.
    */
   timeout: number
 }
@@ -110,13 +111,13 @@ export function encodeHttpAuth(username: string, password: string): string {
 }
 
 /**
- * A deadline that rejects after `ms` milliseconds. When `ms` is not a number
- * the deadline never fires.
+ * A deadline that rejects after `ms` milliseconds. When `ms` is not a finite
+ * number the deadline never fires.
  */
 function createDeadline(ms: unknown, onTimeout: () => void) {
   let timer: NodeJS.Timeout | undefined
   const promise = new Promise<never>((_resolve, reject) => {
-    if (typeof ms === 'number') {
+    if (typeof ms === 'number' && Number.isFinite(ms)) {
       timer = setTimeout(() => {
         // Reject before tearing down: Bun < 1.4 emits 'end' on the response
         // synchronously when the request is destroyed

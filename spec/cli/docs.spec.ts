@@ -5,10 +5,8 @@ import { flags } from '../../src/cli/flags.ts'
 import { renderCliDocs, renderHelp } from '../../src/cli/help.ts'
 
 test('docs/cli.md matches rewait --help', t => {
-  const docs = fs.readFileSync(
-    path.join(import.meta.dirname, '..', '..', 'docs', 'cli.md'),
-    'utf8'
-  )
+  const file = path.join(import.meta.dirname, '..', '..', 'docs', 'cli.md')
+  const docs = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : ''
   t.equal(
     docs,
     renderCliDocs(),

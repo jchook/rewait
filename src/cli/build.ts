@@ -11,6 +11,7 @@ import file from '../file.ts'
 import type { CheckFunction } from '../fn.ts'
 import http, { type CheckHttpOptions } from '../http.ts'
 import type { MatchBodyOptions } from '../matchBody.ts'
+import parseAddress from '../parseAddress.ts'
 import socket from '../socket.ts'
 import udp from '../udp.ts'
 import { type FlagValues, type ParsedCheck, UsageError } from './parse.ts'
@@ -22,7 +23,8 @@ export interface BuiltCheck {
 
 /**
  * Parse a duration such as 500ms, 5s, 2m or 1h into milliseconds. A bare
- * number is taken as milliseconds.
+ * number is taken as milliseconds. Every duration flag treats 0 as "no limit",
+ * so callers should map 0 to whatever disables the limit in question.
  */
 export function parseDuration(value: string, flag: string): number {
   const match = value.match(/^(\d+(?:\.\d+)?)(ms|s|m|h)?$/)
@@ -176,7 +178,7 @@ function buildHttp({ target, flags }: ParsedCheck): CheckFunction {
   }
   const maxTime = duration(flags, 'max-time')
   if (maxTime !== undefined) {
-    opts.timeout = maxTime
+    opts.timeout = maxTime || Infinity
   }
   if (flags.bail) {
     opts.bail = true
@@ -210,7 +212,7 @@ function socketResponse(flags: FlagValues) {
   }
   const timeout = duration(flags, 'response-timeout')
   if (timeout !== undefined) {
-    opts.timeout = timeout
+    opts.timeout = timeout || Infinity
   }
   return Object.keys(opts).length > 0 ? checkSocketResponse(opts) : undefined
 }
@@ -219,28 +221,25 @@ function buildSocket({ target, flags }: ParsedCheck): CheckFunction {
   const checkOk = socketResponse(flags)
   try {
     return socket(target, checkOk ? { checkOk } : {})
-  } catch {
-    throw new UsageError(
-      `Invalid socket address: ${target} (expected tcp://host:port or unix:///path)`
-    )
+  } catch (err) {
+    throw new UsageError((err as Error).message)
   }
 }
 
 function buildUdp({ target, flags }: ParsedCheck): CheckFunction {
-  let url: URL | undefined
+  let address: ReturnType<typeof parseAddress> | undefined
   try {
-    url = new URL(target)
+    address = parseAddress(target)
   } catch {
-    url = undefined
+    address = undefined
   }
-  if (!url?.port) {
+  if (!address || !('port' in address)) {
     throw new UsageError(
       `Invalid UDP address: ${target} (expected udp://host:port)`
     )
   }
-  const host = url.hostname.replace(/^\[(.*)\]$/, '$1')
   const checkOk = socketResponse(flags)
-  return udp(parseInt(url.port, 10), host, checkOk ? { checkOk } : {})
+  return udp(address.port, address.host, checkOk ? { checkOk } : {})
 }
 
 function buildFile({ target, flags }: ParsedCheck): CheckFunction {

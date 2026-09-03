@@ -17,6 +17,23 @@ function usage(t: test.Test, argv: string[], pattern: RegExp) {
   )
 }
 
+test('duration flags treat 0 as no limit', t => {
+  const built = build([
+    'http://a/',
+    '--max-time',
+    '0',
+    '--connect-timeout',
+    '0',
+    'tcp://b:1',
+    '--response-timeout',
+    '0',
+    '--body-substring',
+    'x',
+  ])
+  t.equal(built.length, 2)
+  t.end()
+})
+
 test('parseDuration()', t => {
   t.equal(parseDuration('250', '-t'), 250, 'bare number is ms')
   t.equal(parseDuration('500ms', '-t'), 500)
@@ -171,6 +188,7 @@ test('buildChecks() usage errors', t => {
   )
   usage(t, ['http://'], /Invalid URL: http:\/\//)
   usage(t, ['tcp://host'], /Invalid socket address: tcp:\/\/host/)
+  usage(t, ['tcp://host:99999'], /Invalid socket address: tcp:\/\/host:99999/)
   usage(t, ['udp://host'], /Invalid UDP address: udp:\/\/host/)
   usage(t, ['udp://'], /Invalid UDP address: udp:\/\//)
   usage(t, ['udp://['], /Invalid UDP address: udp:\/\/\[/)
